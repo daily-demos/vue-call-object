@@ -1,17 +1,31 @@
 <template>
-  <Header />
-  <Call />
+  <app-header />
+  <home v-if="appState === 'idle'" :joinCall="joinCall" />
+  <call v-else-if="appState === 'incall'" />
 </template>
 
 <script>
 import Call from "./Call.vue";
-import Header from "./Header.vue";
+import AppHeader from "./AppHeader.vue";
+import Home from "./Home.vue";
 
 export default {
   name: "App",
   components: {
     Call,
-    Header,
+    AppHeader,
+    Home,
+  },
+  data() {
+    return {
+      appState: "idle",
+    };
+  },
+  methods: {
+    joinCall() {
+      console.log("click");
+      this.appState = "incall";
+    },
   },
 };
 </script>

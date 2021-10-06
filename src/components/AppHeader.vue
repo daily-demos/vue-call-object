@@ -3,7 +3,7 @@
     <div>
       <div class="row">
         <a class="right-border" href="https://daily.co">
-          <img :class="icon" :src="daily" alt="Daily.co" />
+          <img class="icon" :src="daily" alt="Daily.co" />
         </a>
         <img class="icon" src="../assets/logo.png" alt="Daily.co" />
         <p>Call object Vue Demo</p>
@@ -23,7 +23,7 @@
 
 <script>
 export default {
-  name: "Header",
+  name: "AppHeader",
   data() {
     return {
       github: require("../assets/github.svg"),
