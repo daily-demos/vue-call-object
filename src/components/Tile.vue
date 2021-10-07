@@ -4,6 +4,9 @@
     <template v-if="video">
       <video autoPlay muted playsInline :srcObject="videoSource"></video>
     </template>
+    <template v-else>
+      <no-video-tile></no-video-tile>
+    </template>
     <template v-if="participant.local">
       <controls
         :handleVideoClick="handleVideoClick"
@@ -16,11 +19,13 @@
 
 <script>
 import Controls from "./Controls.vue";
+import NoVideoTile from "./NoVideoTile.vue";
 
 export default {
   name: "Tile",
   components: {
     Controls,
+    NoVideoTile,
   },
   props: ["participant", "handleVideoClick", "handleAudioClick"],
   data() {
@@ -60,7 +65,8 @@ export default {
 .tile {
   max-width: 480px;
   position: relative;
-  margin: 0 40px;
+  margin: 0 20px;
+  flex: 1;
 }
 video {
   width: 100%;

@@ -77,7 +77,9 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap");
 main {
+  font-family: "Ropa Sans", sans-serif;
   background-color: #121a24;
   height: 100%;
 }
@@ -88,6 +90,7 @@ main {
 }
 .participants-container {
   display: flex;
-  margin: 0 -40px;
+  margin: 0 -20px;
+  justify-content: center;
 }
 </style>

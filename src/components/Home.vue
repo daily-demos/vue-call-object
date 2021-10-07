@@ -23,6 +23,10 @@ export default {
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap");
+main {
+  font-family: "Ropa Sans", sans-serif;
+}
 .wrapper {
   max-width: 1200px;
   margin: auto;
