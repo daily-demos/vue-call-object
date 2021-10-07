@@ -1,11 +1,13 @@
 <template>
   <main>
-    <h1>Call object Vue demo</h1>
-    <p>Demo a custom call interface built using Daily call object for Vue</p>
-    <button @click="joinCall">
-      Start demo
-    </button>
-    <p>Select "Allow" to use your camera and mic for this call</p>
+    <div class="wrapper">
+      <h1>Call object Vue demo</h1>
+      <p>Demo a custom call interface built using Daily call object for Vue</p>
+      <button @click="joinCall">
+        Start demo
+      </button>
+      <p>Select "Allow" to use your camera and mic for this call</p>
+    </div>
   </main>
 </template>
 
@@ -20,4 +22,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.wrapper {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 16px;
+}
+</style>

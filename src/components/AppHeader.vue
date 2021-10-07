@@ -45,6 +45,7 @@ header {
 header > div {
   max-width: 1200px;
   margin: auto;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;

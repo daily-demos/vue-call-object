@@ -1,14 +1,16 @@
 <template>
   <!-- <template v-if="p."> </template> -->
-  <div>
+  <div class="tile">
     <template v-if="video">
       <video autoPlay muted playsInline :srcObject="videoSource"></video>
     </template>
-    <controls
-      :handleVideoClick="handleVideoClick"
-      :handleAudioClick="handleAudioClick"
-      :participant="participant"
-    />
+    <template v-if="participant.local">
+      <controls
+        :handleVideoClick="handleVideoClick"
+        :handleAudioClick="handleAudioClick"
+        :participant="participant"
+      />
+    </template>
   </div>
 </template>
 
@@ -54,4 +56,14 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.tile {
+  max-width: 480px;
+  position: relative;
+  margin: 0 40px;
+}
+video {
+  width: 100%;
+  border-radius: 16px;
+}
+</style>
