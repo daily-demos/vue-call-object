@@ -8,7 +8,23 @@
         <img class="icon" :src="chat" alt="" />
       </template>
     </button>
-    <div :class="chatIsOpen ? 'chat-container open' : 'chat-container'"></div>
+    <div :class="chatIsOpen ? 'chat-container open' : 'chat-container'">
+      <div class="messages"></div>
+      <form @submit="submitForm">
+        <div class="input">
+          <label for="message">Type a message...</label>
+          <textarea
+            id="message"
+            type="text"
+            @keyup.enter="submitForm"
+            v-model="text"
+          />
+        </div>
+        <button class="submit-button" type="submit">
+          <img :src="send" alt="" />
+        </button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -21,11 +37,17 @@ export default {
       close: require("../assets/x.svg"),
       chat: require("../assets/chat.svg"),
       send: require("../assets/send.svg"),
+      text: "",
     };
   },
   methods: {
     handleChatClick() {
       this.chatIsOpen = !this.chatIsOpen;
+    },
+    submitForm(e) {
+      e.preventDefault();
+      console.log("submit!");
+      this.text = "";
     },
   },
 };
@@ -46,6 +68,8 @@ export default {
   right: -300px;
   top: 0;
   transition: right 0.5s ease-out;
+  display: flex;
+  flex-direction: column;
 }
 .chat-container.open {
   right: -0;
@@ -61,5 +85,27 @@ button.chat {
 }
 button.chat.open {
   right: 300px;
+}
+
+.messages {
+  flex: 1;
+}
+.input {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: flex-start;
+}
+.input textarea {
+  width: 100%;
+}
+form {
+  display: flex;
+}
+
+.submit-button {
+  padding: 4px;
+  margin: 0 0 0 16px;
+  border: none;
 }
 </style>

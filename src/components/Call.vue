@@ -41,6 +41,7 @@ export default {
       callObject: null,
       participants: null,
       count: 0,
+      messages: [],
     };
   },
   mounted() {
@@ -55,6 +56,7 @@ export default {
     co.on("participant-left", this.updateParticpants);
     co.on("track-started", this.updateParticpants);
     co.on("track-stopped", this.updateParticpants);
+    co.on("app-message", this.updateMessages);
     console.log(co);
   },
   methods: {
@@ -63,8 +65,10 @@ export default {
       if (!this.callObject) return;
       const p = this.callObject.participants();
       this.count = Object.values(p).length;
-      console.log(this.count);
       this.participants = Object.values(p);
+    },
+    updateMessages(e) {
+      console.log("[MESSAGE] ", e);
     },
     handleAudioClick() {
       const audioOn = this.callObject.localAudio();
@@ -73,6 +77,10 @@ export default {
     handleVideoClick() {
       const videoOn = this.callObject.localVideo();
       this.callObject.setLocalVideo(!videoOn);
+    },
+    sendMessage(text) {
+      this.messages.push({ text });
+      this.callObject.sendAppMessage({ message: text }, "*");
     },
   },
 };
