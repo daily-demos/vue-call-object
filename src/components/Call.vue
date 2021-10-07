@@ -1,8 +1,7 @@
 <template>
   <main>
     <div class="wrapper">
-      <h1>call</h1>
-      {{ count }}
+      <p>{{ count }}</p>
       <div class="participants-container" v-if="participants">
         <template v-for="p in participants" :key="p.session_id">
           <tile
@@ -15,6 +14,7 @@
           <waiting-card />
         </template>
       </div>
+      <chat />
     </div>
   </main>
 </template>
@@ -23,6 +23,7 @@
 import daily from "@daily-co/daily-js";
 import Tile from "./Tile.vue";
 import WaitingCard from "./WaitingCard.vue";
+import Chat from "./Chat.vue";
 
 const CALL_OPTIONS = {
   url: "https://jessmitch.daily.co/hey",
@@ -33,6 +34,7 @@ export default {
   components: {
     Tile,
     WaitingCard,
+    Chat,
   },
   data() {
     return {
@@ -82,6 +84,7 @@ main {
   font-family: "Ropa Sans", sans-serif;
   background-color: #121a24;
   height: 100%;
+  position: relative;
 }
 .wrapper {
   max-width: 1200px;
@@ -92,5 +95,8 @@ main {
   display: flex;
   margin: 0 -20px;
   justify-content: center;
+}
+p {
+  color: white;
 }
 </style>
