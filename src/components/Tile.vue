@@ -64,8 +64,9 @@ export default {
 <style scoped>
 .tile {
   max-width: 480px;
+  min-width: 300px;
   position: relative;
-  margin: 0 20px;
+  margin: 10px 20px;
   flex: 1;
 }
 video {

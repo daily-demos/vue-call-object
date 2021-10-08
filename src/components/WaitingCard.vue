@@ -17,12 +17,14 @@ export default {
   background-color: #2b3f56;
   border-radius: 16px;
   max-width: 480px;
-  margin: 0 20px;
+  min-width: 300px;
+  margin: 10px 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 16/9;
 }
 .card h2 {
   color: #1bebb9;

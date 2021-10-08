@@ -103,6 +103,7 @@ main {
   display: flex;
   margin: 0 -20px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 p {
   color: white;
