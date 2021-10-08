@@ -16,13 +16,16 @@
         <img class="icon" :src="videoOn" alt="" />
       </template>
     </button>
+    <button @click="leaveCall">
+      <img class="icon" :src="leave" alt="" />
+    </button>
   </div>
 </template>
 
 <script>
 export default {
   name: "Controls",
-  props: ["participant", "handleVideoClick", "handleAudioClick"],
+  props: ["participant", "handleVideoClick", "handleAudioClick", "leaveCall"],
   data() {
     return {
       leave: require("../assets/leave_call.svg"),

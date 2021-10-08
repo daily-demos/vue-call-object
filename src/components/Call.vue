@@ -8,6 +8,7 @@
             :participant="p"
             :handleVideoClick="handleVideoClick"
             :handleAudioClick="handleAudioClick"
+            :leaveCall="leaveAndCleanUp"
           />
         </template>
         <template v-if="count === 1">
@@ -36,6 +37,7 @@ export default {
     WaitingCard,
     Chat,
   },
+  props: ["leaveCall"],
   data() {
     return {
       callObject: null,
@@ -45,7 +47,6 @@ export default {
     };
   },
   mounted() {
-    console.log("here");
     const co = daily.createCallObject(CALL_OPTIONS);
     this.callObject = co;
 
@@ -57,14 +58,12 @@ export default {
     co.on("track-started", this.updateParticpants);
     co.on("track-stopped", this.updateParticpants);
     co.on("app-message", this.updateMessages);
-    console.log(co);
   },
   methods: {
     updateParticpants(e) {
       console.log("[EVENT] ", e);
       if (!this.callObject) return;
       const p = this.callObject.participants();
-      console.log(Object.values(p));
       this.count = Object.values(p).length;
       this.participants = Object.values(p);
     },
@@ -86,6 +85,13 @@ export default {
       const message = { message: text, name: local?.user_name || "Guest" };
       this.messages.push(message);
       this.callObject.sendAppMessage(message, "*");
+    },
+    leaveAndCleanUp() {
+      this.callObject.leave().then(() => {
+        this.callObject.destroy();
+
+        this.leaveCall();
+      });
     },
   },
 };

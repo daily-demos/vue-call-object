@@ -50,7 +50,6 @@ export default {
     },
     submitForm(e) {
       e.preventDefault();
-      console.log(e.target.value);
       this.sendMessage(e?.target?.value);
       this.text = "";
     },

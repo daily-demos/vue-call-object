@@ -12,6 +12,7 @@
         :handleVideoClick="handleVideoClick"
         :handleAudioClick="handleAudioClick"
         :participant="participant"
+        :leaveCall="leaveCall"
       />
     </template>
   </div>
@@ -27,7 +28,7 @@ export default {
     Controls,
     NoVideoTile,
   },
-  props: ["participant", "handleVideoClick", "handleAudioClick"],
+  props: ["participant", "handleVideoClick", "handleAudioClick", "leaveCall"],
   data() {
     return {
       videoSource: null,
@@ -37,13 +38,11 @@ export default {
     this.handleVideo(this.participant);
   },
   updated() {
-    console.log("tile updated");
     if (this.videoSource) return;
     this.handleVideo(this.participant);
   },
   methods: {
     handleVideo() {
-      console.log(this.participant.video);
       if (!this.participant?.video) return;
       const videoTrack = this.participant?.tracks?.video?.persistentTrack;
       const source = new MediaStream([videoTrack]);
