@@ -14,7 +14,7 @@
           <waiting-card />
         </template>
       </div>
-      <chat />
+      <chat :sendMessage="sendMessage" :messages="messages" />
     </div>
   </main>
 </template>
@@ -64,11 +64,13 @@ export default {
       console.log("[EVENT] ", e);
       if (!this.callObject) return;
       const p = this.callObject.participants();
+      console.log(Object.values(p));
       this.count = Object.values(p).length;
       this.participants = Object.values(p);
     },
     updateMessages(e) {
-      console.log("[MESSAGE] ", e);
+      console.log("[MESSAGE] ", e.data);
+      this.messages.push(e?.data);
     },
     handleAudioClick() {
       const audioOn = this.callObject.localAudio();
@@ -79,8 +81,11 @@ export default {
       this.callObject.setLocalVideo(!videoOn);
     },
     sendMessage(text) {
-      this.messages.push({ text });
-      this.callObject.sendAppMessage({ message: text }, "*");
+      // Messages are sent local and received by everyone, so set the username when it's sent.
+      const local = this.callObject.participants().local;
+      const message = { message: text, name: local?.user_name || "Guest" };
+      this.messages.push(message);
+      this.callObject.sendAppMessage(message, "*");
     },
   },
 };

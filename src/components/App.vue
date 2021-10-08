@@ -40,6 +40,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow-x: hidden;
 }
 a {
   text-decoration: none;

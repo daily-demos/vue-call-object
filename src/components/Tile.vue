@@ -1,7 +1,7 @@
 <template>
   <!-- <template v-if="p."> </template> -->
   <div class="tile">
-    <template v-if="video">
+    <template v-if="participant.video">
       <video autoPlay muted playsInline :srcObject="videoSource"></video>
     </template>
     <template v-else>
@@ -33,25 +33,17 @@ export default {
       videoSource: null,
     };
   },
-  computed: {
-    video() {
-      return this.participant.video;
-    },
-  },
   mounted() {
     this.handleVideo(this.participant);
   },
-  watch: {
-    particpant: {
-      deep: true,
-      handler: function(newVal, oldVal) {
-        console.log("Prop changed: ", newVal, " | was: ", oldVal);
-        this.handleVideo(newVal);
-      },
-    },
+  updated() {
+    console.log("tile updated");
+    if (this.videoSource) return;
+    this.handleVideo(this.participant);
   },
   methods: {
     handleVideo() {
+      console.log(this.participant.video);
       if (!this.participant?.video) return;
       const videoTrack = this.participant?.tracks?.video?.persistentTrack;
       const source = new MediaStream([videoTrack]);
