@@ -1,22 +1,24 @@
 <template>
   <div class="controls">
-    <button @click="handleAudioClick">
-      <template v-if="participant.audio">
-        <img class="icon" :src="micOn" alt="" />
-      </template>
-      <template v-else>
-        <img class="icon" :src="micOn" alt="" />
-      </template>
-    </button>
-    <button @click="handleVideoClick">
-      <template v-if="participant.video">
-        <img class="icon" :src="videoOn" alt="" />
-      </template>
-      <template v-else>
-        <img class="icon" :src="videoOn" alt="" />
-      </template>
-    </button>
-    <button @click="leaveCall">
+    <div class="devices">
+      <button @click="handleAudioClick">
+        <template v-if="participant.audio">
+          <img class="icon" :src="micOn" alt="" />
+        </template>
+        <template v-else>
+          <img class="icon" :src="micOn" alt="" />
+        </template>
+      </button>
+      <button @click="handleVideoClick">
+        <template v-if="participant.video">
+          <img class="icon" :src="videoOn" alt="" />
+        </template>
+        <template v-else>
+          <img class="icon" :src="videoOn" alt="" />
+        </template>
+      </button>
+    </div>
+    <button class="leave" @click="leaveCall">
       <img class="icon" :src="leave" alt="" />
     </button>
   </div>
@@ -42,9 +44,16 @@ export default {
   position: absolute;
   bottom: 16px;
   left: 8px;
+  justify-content: space-between;
+  display: flex;
+  width: calc(100% - 24px);
+}
+
+.devices {
   border-radius: 12px;
   background-color: #121a24;
-  padding: 8px;
+  opacity: 0.85;
+  padding: 14px 16px 15px;
 }
 button {
   background-color: transparent;
@@ -52,6 +61,12 @@ button {
   cursor: pointer;
 }
 button:hover {
+}
+button.leave {
+  background-color: #f63135;
+  opacity: 0.85;
+  padding: 14px 16px 15px;
+  border-radius: 12px;
 }
 .icon {
   height: 24px;

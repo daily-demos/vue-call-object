@@ -24,6 +24,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2px 0;
   aspect-ratio: 16/9;
 }
 .card h2 {
