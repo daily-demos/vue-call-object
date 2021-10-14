@@ -1,5 +1,9 @@
 <template>
   <div class="tile">
+    <audio autoPlay playsInline :srcObject="audioSource">
+      <track kind="captions" />
+    </audio>
+
     <template v-if="participant.video">
       <video autoPlay muted playsInline :srcObject="videoSource"></video>
       <p class="participant-name">{{ username }}</p>
@@ -34,18 +38,24 @@ export default {
   data() {
     return {
       videoSource: null,
+      audioSource: null,
       username: "Guest",
     };
   },
   mounted() {
     this.username = this.participant?.user_name;
     this.handleVideo(this.participant);
+    this.handleAudio(this.participant);
   },
   updated() {
     this.username = this.participant?.user_name;
 
-    if (this.videoSource) return;
-    this.handleVideo(this.participant);
+    if (!this.videoSource) {
+      this.handleVideo(this.participant);
+    }
+    if (!this.audioSource) {
+      this.handleAudio(this.participant);
+    }
   },
   methods: {
     handleVideo() {
@@ -53,6 +63,13 @@ export default {
       const videoTrack = this.participant?.tracks?.video?.persistentTrack;
       const source = new MediaStream([videoTrack]);
       this.videoSource = source;
+    },
+    handleAudio() {
+      if (this.participant?.local) return;
+      if (!this.participant?.tracks?.audio?.persistentTrack) return;
+      const audioTrack = this.participant?.tracks?.audio?.persistentTrack;
+      const source = new MediaStream([audioTrack]);
+      this.audioSource = source;
     },
   },
 };
