@@ -6,7 +6,7 @@
           <img class="icon" :src="micOn" alt="" />
         </template>
         <template v-else>
-          <img class="icon" :src="micOn" alt="" />
+          <img class="icon" :src="micOff" alt="" />
         </template>
       </button>
 
@@ -15,9 +15,15 @@
           <img class="icon" :src="videoOn" alt="" />
         </template>
         <template v-else>
-          <img class="icon" :src="videoOn" alt="" />
+          <img class="icon" :src="videoOff" alt="" />
         </template>
       </button>
+
+      <template v-if="supportsScreenshare">
+        <button @click="handleScreenshareClick">
+          <img class="icon" :src="screenshare" alt="" />
+        </button>
+      </template>
     </div>
 
     <button class="leave" @click="leaveCall">
@@ -27,16 +33,30 @@
 </template>
 
 <script>
+import daily from "@daily-co/daily-js";
+
 export default {
   name: "Controls",
-  props: ["participant", "handleVideoClick", "handleAudioClick", "leaveCall"],
+  props: [
+    "participant",
+    "handleVideoClick",
+    "handleAudioClick",
+    "handleScreenshareClick",
+    "leaveCall",
+  ],
   data() {
     return {
       leave: require("../assets/leave_call.svg"),
       micOn: require("../assets/mic_on.svg"),
+      micOff: require("../assets/mic_off.svg"),
       screenshare: require("../assets/screenshare.svg"),
       videoOn: require("../assets/vid_on.svg"),
+      videoOff: require("../assets/vid_off.svg"),
+      supportsScreenshare: false,
     };
+  },
+  mounted() {
+    this.supportsScreenshare = daily.supportedBrowser().supportsScreenShare;
   },
 };
 </script>

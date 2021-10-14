@@ -8,12 +8,17 @@
       </template>
 
       <div class="participants-container" v-if="participants">
+        <template v-if="screen">
+          <screenshare-tile :participant="screen" />
+        </template>
         <template v-for="p in participants" :key="p.session_id">
           <video-tile
             :participant="p"
             :handleVideoClick="handleVideoClick"
             :handleAudioClick="handleAudioClick"
+            :handleScreenshareClick="handleScreenshareClick"
             :leaveCall="leaveAndCleanUp"
+            :disableScreenshare=""
           />
         </template>
 
@@ -33,6 +38,7 @@ import daily from "@daily-co/daily-js";
 import WaitingCard from "./WaitingCard.vue";
 import Chat from "./Chat.vue";
 import VideoTile from "./VideoTile.vue";
+import ScreenshareTile from "./ScreenshareTile.vue";
 
 export default {
   name: "Call",
@@ -40,6 +46,7 @@ export default {
     VideoTile,
     WaitingCard,
     Chat,
+    ScreenshareTile,
   },
   props: ["leaveCall", "name"],
   data() {
@@ -51,6 +58,7 @@ export default {
       error: false,
       loading: false,
       url: "https://jessmitch.daily.co/hey",
+      screen: null,
     };
   },
   mounted() {
@@ -80,6 +88,13 @@ export default {
       const p = this.callObject.participants();
       this.count = Object.values(p).length;
       this.participants = Object.values(p);
+
+      const screen = this.participants.filter((p) => p.screen);
+      if (screen?.length && !this.screen) {
+        this.screen = screen[0];
+      } else if (!screen?.length && this.screen) {
+        this.screen = null;
+      }
       this.loading = false;
     },
     updateMessages(e) {
@@ -103,6 +118,13 @@ export default {
       const videoOn = this.callObject.localVideo();
       this.callObject.setLocalVideo(!videoOn);
     },
+    handleScreenshareClick() {
+      if (this.participants?.local?.screen) {
+        this.callObject.stopScreenShare();
+      } else {
+        this.callObject.startScreenShare();
+      }
+    },
     sendMessage(text) {
       // Messages are sent local and received by everyone, so set the username when it's sent.
       const local = this.callObject.participants().local;
@@ -114,6 +136,7 @@ export default {
       this.callObject.leave().then(() => {
         this.callObject.destroy();
 
+        this.participantWithScreenshare = null;
         this.leaveCall();
       });
     },

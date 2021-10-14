@@ -17,6 +17,7 @@
       <controls
         :handleVideoClick="handleVideoClick"
         :handleAudioClick="handleAudioClick"
+        :handleScreenshareClick="handleScreenshareClick"
         :participant="participant"
         :leaveCall="leaveCall"
       />
@@ -34,7 +35,13 @@ export default {
     Controls,
     NoVideoTile,
   },
-  props: ["participant", "handleVideoClick", "handleAudioClick", "leaveCall"],
+  props: [
+    "participant",
+    "handleVideoClick",
+    "handleAudioClick",
+    "handleScreenshareClick",
+    "leaveCall",
+  ],
   data() {
     return {
       videoSource: null,
@@ -79,7 +86,6 @@ export default {
 .tile {
   max-width: 50%;
   flex: 1 1 300px;
-  position: relative;
   margin: 10px 20px;
   position: relative;
 }
