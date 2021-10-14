@@ -45,6 +45,7 @@ export default {
   flex-direction: column;
   height: 100vh;
   overflow-x: hidden;
+  background-color: #121a24;
 }
 a {
   text-decoration: none;

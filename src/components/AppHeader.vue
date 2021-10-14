@@ -41,6 +41,7 @@ header {
   font-weight: bold;
   border-bottom: 1px solid #c8d1dc;
   padding: 2px;
+  background-color: #fff;
 }
 header > div {
   max-width: 1200px;

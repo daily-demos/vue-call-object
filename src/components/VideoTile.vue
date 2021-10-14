@@ -60,11 +60,10 @@ export default {
 
 <style scoped>
 .tile {
-  max-width: 480px;
-  min-width: 300px;
+  max-width: 50%;
+  flex: 1 1 300px;
   position: relative;
   margin: 10px 20px;
-  flex: 1;
   position: relative;
 }
 video {
@@ -81,8 +80,8 @@ video {
 
 @media screen and (max-width: 700px) {
   .tile {
-    width: 100%;
-    margin: 10px 60px;
+    max-width: 100%;
+    margin: 10px 20px;
   }
 }
 </style>

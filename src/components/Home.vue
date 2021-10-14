@@ -50,6 +50,7 @@ main {
   justify-content: center;
   align-items: center;
   flex: 1;
+  background-color: #fff;
 }
 .wrapper {
   max-width: 1200px;

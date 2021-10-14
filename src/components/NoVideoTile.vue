@@ -16,11 +16,11 @@ export default {
   background-color: #2b3f56;
   border-radius: 16px;
   aspect-ratio: 16/9;
-  height: 100%;
   color: #fff;
   position: relative;
   display: flex;
-  flex: 1;
+  height: 100%;
+  width: 100%;
   justify-content: center;
   align-items: center;
   padding: 2px 0;

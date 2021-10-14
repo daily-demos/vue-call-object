@@ -17,10 +17,9 @@ export default {
 .card {
   background-color: #2b3f56;
   border-radius: 16px;
-  max-width: 480px;
-  min-width: 300px;
   margin: 10px 20px;
-  flex: 1;
+  max-width: 50%;
+  flex: 1 1 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -40,5 +39,11 @@ export default {
   color: #fff;
   margin: 16px 0 0;
   font-size: 12px;
+}
+@media screen and (max-width: 700px) {
+  .card {
+    max-width: 100%;
+    margin: 10px 20px;
+  }
 }
 </style>

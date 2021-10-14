@@ -1,7 +1,7 @@
 <template>
   <main>
     <div class="wrapper">
-      <p>{{ count }}</p>
+      <!-- <p>{{ count }}</p> -->
 
       <template v-if="error">
         <p class="error-text">{{ error }}</p>
@@ -138,7 +138,10 @@ main {
   display: flex;
   margin: 0 -20px;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
+  height: calc(100vh - 48px);
+  background-color: #121a24;
 }
 p {
   color: white;
