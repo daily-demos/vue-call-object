@@ -3,10 +3,11 @@
     <div class="wrapper">
       <h1>Call object Vue demo</h1>
       <p>Demo a custom call interface built using Daily call object for Vue</p>
-      <form class="join-form" @submit="joinCall">
+
+      <form class="join-form" @submit="joinWithName">
         <div class="name-container">
           <label for="name">Name</label>
-          <input type="text" id="name" required />
+          <input type="text" id="name" required v-model="name" />
         </div>
         <div class="submit-container">
           <button type="submit">
@@ -14,6 +15,7 @@
           </button>
         </div>
       </form>
+
       <p class="subtext">
         Select "Allow" to use your camera and mic for this call
       </p>
@@ -27,6 +29,16 @@ export default {
   props: {
     joinCall: {
       type: Function,
+    },
+  },
+  data() {
+    return {
+      name: "",
+    };
+  },
+  methods: {
+    joinWithName() {
+      this.joinCall(this.name);
     },
   },
 };

@@ -1,12 +1,14 @@
 <template>
-  <!-- <template v-if="p."> </template> -->
   <div class="tile">
     <template v-if="participant.video">
       <video autoPlay muted playsInline :srcObject="videoSource"></video>
+      <p class="participant-name">{{ username }}</p>
     </template>
+
     <template v-else>
-      <no-video-tile></no-video-tile>
+      <no-video-tile :username="username"></no-video-tile>
     </template>
+
     <template v-if="participant.local">
       <controls
         :handleVideoClick="handleVideoClick"
@@ -23,7 +25,7 @@ import Controls from "./Controls.vue";
 import NoVideoTile from "./NoVideoTile.vue";
 
 export default {
-  name: "Tile",
+  name: "VideoTile",
   components: {
     Controls,
     NoVideoTile,
@@ -32,12 +34,16 @@ export default {
   data() {
     return {
       videoSource: null,
+      username: "Guest",
     };
   },
   mounted() {
+    this.username = this.participant?.user_name;
     this.handleVideo(this.participant);
   },
   updated() {
+    this.username = this.participant?.user_name;
+
     if (this.videoSource) return;
     this.handleVideo(this.participant);
   },
@@ -59,9 +65,17 @@ export default {
   position: relative;
   margin: 10px 20px;
   flex: 1;
+  position: relative;
 }
 video {
   width: 100%;
   border-radius: 16px;
+}
+.participant-name {
+  position: absolute;
+  color: #fff;
+  top: 12px;
+  right: 12px;
+  margin: 0;
 }
 </style>

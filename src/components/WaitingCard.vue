@@ -2,13 +2,14 @@
   <div class="card">
     <h2>Waiting for others!</h2>
     <h3>Invite someone by sharing this link:</h3>
-    <p>make this a link ;)</p>
+    <p>{{ url }}</p>
   </div>
 </template>
 
 <script>
 export default {
   name: "WaitingCard",
+  props: ["url"],
 };
 </script>
 

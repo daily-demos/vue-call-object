@@ -9,6 +9,7 @@
           <img class="icon" :src="micOn" alt="" />
         </template>
       </button>
+
       <button @click="handleVideoClick">
         <template v-if="participant.video">
           <img class="icon" :src="videoOn" alt="" />
@@ -18,6 +19,7 @@
         </template>
       </button>
     </div>
+
     <button class="leave" @click="leaveCall">
       <img class="icon" :src="leave" alt="" />
     </button>
@@ -42,25 +44,26 @@ export default {
 <style scoped>
 .controls {
   position: absolute;
-  bottom: 16px;
+  bottom: 12px;
   left: 8px;
   justify-content: space-between;
   display: flex;
-  width: calc(100% - 24px);
+  width: calc(100% - 16px);
 }
 
 .devices {
   border-radius: 12px;
   background-color: #121a24;
   opacity: 0.85;
-  padding: 14px 16px 15px;
+  padding: 14px 10px 15px;
 }
 button {
   background-color: transparent;
   border: none;
   cursor: pointer;
 }
-button:hover {
+button:not(.leave) {
+  margin: 0 4px;
 }
 button.leave {
   background-color: #f63135;

@@ -12,6 +12,7 @@
       <div class="messages">
         <p v-for="(chat, i) in messages" :key="i">{{ chat?.message }}</p>
       </div>
+
       <form @submit="submitForm">
         <div class="input">
           <label for="message">Type a message...</label>
@@ -23,6 +24,7 @@
             placeholder="Type a message..."
           />
         </div>
+
         <button class="submit-button" type="submit">
           <img :src="send" alt="" />
         </button>

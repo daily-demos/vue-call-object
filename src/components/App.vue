@@ -1,7 +1,7 @@
 <template>
   <app-header />
   <home v-if="appState === 'idle'" :joinCall="joinCall" />
-  <call v-else-if="appState === 'incall'" :leaveCall="leaveCall" />
+  <call v-else-if="appState === 'incall'" :leaveCall="leaveCall" :name="name" />
 </template>
 
 <script>
@@ -19,10 +19,12 @@ export default {
   data() {
     return {
       appState: "idle",
+      name: "Guest",
     };
   },
   methods: {
-    joinCall() {
+    joinCall(name) {
+      this.name = name;
       this.appState = "incall";
     },
     leaveCall() {

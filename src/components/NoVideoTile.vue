@@ -1,12 +1,13 @@
 <template>
   <div class="no-video">
-    <p>no video</p>
+    <p>{{ username }}</p>
   </div>
 </template>
 
 <script>
 export default {
   name: "NoVideoTile",
+  props: ["username"],
 };
 </script>
 

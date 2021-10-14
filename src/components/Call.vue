@@ -2,19 +2,26 @@
   <main>
     <div class="wrapper">
       <p>{{ count }}</p>
+
+      <template v-if="error">
+        <p class="error-text">{{ error }}</p>
+      </template>
+
       <div class="participants-container" v-if="participants">
         <template v-for="p in participants" :key="p.session_id">
-          <tile
+          <video-tile
             :participant="p"
             :handleVideoClick="handleVideoClick"
             :handleAudioClick="handleAudioClick"
             :leaveCall="leaveAndCleanUp"
           />
         </template>
+
         <template v-if="count === 1">
-          <waiting-card />
+          <waiting-card :url="url" />
         </template>
       </div>
+
       <chat :sendMessage="sendMessage" :messages="messages" />
     </div>
   </main>
@@ -22,42 +29,49 @@
 
 <script>
 import daily from "@daily-co/daily-js";
-import Tile from "./Tile.vue";
+
 import WaitingCard from "./WaitingCard.vue";
 import Chat from "./Chat.vue";
-
-const CALL_OPTIONS = {
-  url: "https://jessmitch.daily.co/hey",
-};
+import VideoTile from "./VideoTile.vue";
 
 export default {
   name: "Call",
   components: {
-    Tile,
+    VideoTile,
     WaitingCard,
     Chat,
   },
-  props: ["leaveCall"],
+  props: ["leaveCall", "name"],
   data() {
     return {
       callObject: null,
       participants: null,
       count: 0,
       messages: [],
+      error: false,
+      loading: false,
+      url: "https://jessmitch.daily.co/hey",
     };
   },
   mounted() {
-    const co = daily.createCallObject(CALL_OPTIONS);
+    const option = {
+      url: this.url,
+    };
+    const co = daily.createCallObject(option);
     this.callObject = co;
 
-    co.join();
-    co.on("joined-meeting", this.updateParticpants);
-    co.on("participant-joined", this.updateParticpants);
-    co.on("participant-updated", this.updateParticpants);
-    co.on("participant-left", this.updateParticpants);
-    co.on("track-started", this.updateParticpants);
-    co.on("track-stopped", this.updateParticpants);
-    co.on("app-message", this.updateMessages);
+    co.join({ userName: this.name });
+
+    // Add call and participant event handler
+    co.on("joined-meeting", this.updateParticpants)
+      .on("joining-meeting", this.handleJoiningMeeting)
+      .on("participant-joined", this.updateParticpants)
+      .on("participant-updated", this.updateParticpants)
+      .on("participant-left", this.updateParticpants)
+      .on("track-started", this.updateParticpants)
+      .on("track-stopped", this.updateParticpants)
+      .on("error", this.handleError)
+      .on("app-message", this.updateMessages);
   },
   methods: {
     updateParticpants(e) {
@@ -66,10 +80,20 @@ export default {
       const p = this.callObject.participants();
       this.count = Object.values(p).length;
       this.participants = Object.values(p);
+      this.loading = false;
     },
     updateMessages(e) {
       console.log("[MESSAGE] ", e.data);
       this.messages.push(e?.data);
+    },
+    handleError(e) {
+      console.log("[ERROR] ", e);
+      this.error = e?.errorMsg;
+      this.loading = false;
+    },
+    handleJoiningMeeting(e) {
+      console.log("[JOINING] ", e);
+      this.loading = true;
     },
     handleAudioClick() {
       const audioOn = this.callObject.localAudio();
@@ -118,5 +142,8 @@ main {
 }
 p {
   color: white;
+}
+.error-text {
+  color: #e71115;
 }
 </style>
