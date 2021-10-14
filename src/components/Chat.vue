@@ -1,16 +1,20 @@
 <template>
-  <div class="chat-wrapper">
-    <button :class="chatIsOpen ? 'chat open' : 'chat'" @click="handleChatClick">
-      <template v-if="chatIsOpen">
-        <img class="icon" :src="close" alt="" />
-      </template>
-      <template v-else>
-        <img class="icon" :src="chat" alt="" />
-      </template>
-    </button>
-    <div :class="chatIsOpen ? 'chat-container open' : 'chat-container'">
+  <div :class="chatIsOpen ? 'chat-wrapper open' : 'chat-wrapper'">
+    <div>
+      <button class="chat" @click="handleChatClick">
+        <template v-if="chatIsOpen">
+          <img class="icon" :src="close" alt="" />
+        </template>
+        <template v-else>
+          <img class="icon" :src="chat" alt="" />
+        </template>
+      </button>
+    </div>
+    <div class="chat-container">
       <div class="messages">
-        <p v-for="(chat, i) in messages" :key="i">{{ chat?.message }}</p>
+        <p v-for="(chat, i) in messages" :key="i" class="chat-message">
+          <span class="chat-name">{{ chat?.name }}: </span>{{ chat?.message }}
+        </p>
       </div>
 
       <form @submit="submitForm">
@@ -52,7 +56,11 @@ export default {
     },
     submitForm(e) {
       e.preventDefault();
-      this.sendMessage(e?.target?.value);
+      const message = e?.target?.value.replace("\n", "");
+      // don't send empty messages
+      if (!message) return;
+
+      this.sendMessage(message);
       this.text = "";
     },
   },
@@ -66,40 +74,34 @@ export default {
   position: absolute;
   right: 0;
   top: 0;
+  width: 348px;
   height: 100%;
+  transition: right 0.5s ease-out;
+  right: -300px;
+  display: flex;
+  align-items: center;
+}
+.chat-wrapper.open {
+  right: 0;
 }
 .chat-container {
   background-color: #fff;
   width: 300px;
-  height: calc(100% - 48px);
-  position: absolute;
-  right: -348px;
-  top: 0;
-  transition: right 0.5s ease-out;
   display: flex;
   flex-direction: column;
   padding: 24px;
-}
-.chat-container.open {
-  right: -0;
+  height: calc(100% - 48px);
 }
 button.chat {
   background-color: #fff;
-  position: absolute;
-  right: 0;
-  top: calc((100vh - 45px) / 2);
   border: none;
   cursor: pointer;
-  transition: right 0.5s ease-out;
   border-radius: 16px 0 0 16px;
   padding: 16px 14px 13px 18px;
 }
-button.chat.open {
-  right: 348px;
-}
-
 .messages {
   flex: 1;
+  padding-right: 32px;
 }
 .input {
   display: flex;
@@ -131,5 +133,23 @@ form {
   margin: 0 0 0 16px;
   border: none;
   background-color: #fff;
+}
+
+.chat-message {
+  color: #121a24;
+  text-align: left;
+  font-size: 14px;
+  line-height: 18px;
+  margin: 0 0 20px;
+}
+.chat-message .chat-name {
+  color: #6b7785;
+}
+
+@media screen and (max-width: 700px) {
+  .chat-container {
+    width: calc(100% - 104px);
+    right: calc((100% + 56px) * -1);
+  }
 }
 </style>

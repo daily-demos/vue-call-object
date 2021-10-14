@@ -67,4 +67,9 @@ header > div {
   border-radius: 8px;
   padding: 7px 16px;
 }
+@media screen and (max-width: 700px) {
+  .button-link {
+    display: none;
+  }
+}
 </style>

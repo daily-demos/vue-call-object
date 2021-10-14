@@ -78,4 +78,11 @@ video {
   right: 12px;
   margin: 0;
 }
+
+@media screen and (max-width: 700px) {
+  .tile {
+    width: 100%;
+    margin: 10px 60px;
+  }
+}
 </style>
