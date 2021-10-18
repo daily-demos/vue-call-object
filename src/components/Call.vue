@@ -1,34 +1,47 @@
 <template>
   <main>
-    <div class="wrapper">
-      <!-- <p>{{ count }}</p> -->
+    <template v-if="loading">
+      <div class="loading-spinner"><loading /></div>
+    </template>
+    <template v-else>
+      <div class="wrapper">
+        <!-- <p>{{ count }}</p> -->
 
-      <template v-if="error">
-        <p class="error-text">{{ error }}</p>
-      </template>
-
-      <div class="participants-container" v-if="participants">
-        <template v-if="screen">
-          <screenshare-tile :participant="screen" />
-        </template>
-        <template v-for="p in participants" :key="p.session_id">
-          <video-tile
-            :participant="p"
-            :handleVideoClick="handleVideoClick"
-            :handleAudioClick="handleAudioClick"
-            :handleScreenshareClick="handleScreenshareClick"
-            :leaveCall="leaveAndCleanUp"
-            :disableScreenshare=""
-          />
+        <template v-if="error">
+          <p class="error-text">{{ error }}</p>
         </template>
 
-        <template v-if="count === 1">
-          <waiting-card :url="url" />
+        <template v-if="showPermissionsError">
+          <permissions-error-msg :reset="leaveAndCleanUp" />
         </template>
+        <template v-else>
+          <div
+            :class="screen ? 'tile-container' : 'tile-container full-height'"
+          >
+            <template v-if="screen">
+              <screenshare-tile :participant="screen" />
+            </template>
+            <div class="participants-container" v-if="participants">
+              <template v-for="p in participants" :key="p.session_id">
+                <video-tile
+                  :participant="p"
+                  :handleVideoClick="handleVideoClick"
+                  :handleAudioClick="handleAudioClick"
+                  :handleScreenshareClick="handleScreenshareClick"
+                  :leaveCall="leaveAndCleanUp"
+                />
+              </template>
+
+              <template v-if="count === 1">
+                <waiting-card :url="url" />
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <chat :sendMessage="sendMessage" :messages="messages" />
       </div>
-
-      <chat :sendMessage="sendMessage" :messages="messages" />
-    </div>
+    </template>
   </main>
 </template>
 
@@ -39,6 +52,8 @@ import WaitingCard from "./WaitingCard.vue";
 import Chat from "./Chat.vue";
 import VideoTile from "./VideoTile.vue";
 import ScreenshareTile from "./ScreenshareTile.vue";
+import Loading from "./Loading.vue";
+import PermissionsErrorMsg from "./PermissionsErrorMsg.vue";
 
 export default {
   name: "Call",
@@ -47,6 +62,8 @@ export default {
     WaitingCard,
     Chat,
     ScreenshareTile,
+    Loading,
+    PermissionsErrorMsg,
   },
   props: ["leaveCall", "name"],
   data() {
@@ -59,6 +76,7 @@ export default {
       loading: false,
       url: "https://jessmitch.daily.co/hey",
       screen: null,
+      showPermissionsError: false,
     };
   },
   mounted() {
@@ -71,6 +89,7 @@ export default {
     co.join({ userName: this.name });
 
     // Add call and participant event handler
+    // Visit https://docs.daily.co/reference/daily-js/events for more event info
     co.on("joined-meeting", this.updateParticpants)
       .on("joining-meeting", this.handleJoiningMeeting)
       .on("participant-joined", this.updateParticpants)
@@ -79,6 +98,7 @@ export default {
       .on("track-started", this.updateParticpants)
       .on("track-stopped", this.updateParticpants)
       .on("error", this.handleError)
+      .on("camera-error", this.handleDeviceError)
       .on("app-message", this.updateMessages);
   },
   methods: {
@@ -106,8 +126,7 @@ export default {
       this.error = e?.errorMsg;
       this.loading = false;
     },
-    handleJoiningMeeting(e) {
-      console.log("[JOINING] ", e);
+    handleJoiningMeeting() {
       this.loading = true;
     },
     handleAudioClick() {
@@ -117,6 +136,9 @@ export default {
     handleVideoClick() {
       const videoOn = this.callObject.localVideo();
       this.callObject.setLocalVideo(!videoOn);
+    },
+    handleDeviceError() {
+      this.showPermissionsError = true;
     },
     handleScreenshareClick() {
       if (this.participants?.local?.screen) {
@@ -156,6 +178,19 @@ main {
   max-width: 1200px;
   margin: auto;
   padding: 0 16px;
+  height: 100%;
+}
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.tile-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .participants-container {
   display: flex;
@@ -163,7 +198,7 @@ main {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  height: calc(100vh - 48px);
+  width: 100%;
   background-color: #121a24;
 }
 p {
@@ -171,5 +206,8 @@ p {
 }
 .error-text {
   color: #e71115;
+}
+.full-height {
+  height: 100%;
 }
 </style>

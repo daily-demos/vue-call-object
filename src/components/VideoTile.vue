@@ -85,7 +85,7 @@ export default {
 <style scoped>
 .tile {
   max-width: 50%;
-  flex: 1 1 300px;
+  flex: 1 1 350px;
   margin: 10px 20px;
   position: relative;
 }

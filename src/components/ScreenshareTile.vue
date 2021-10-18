@@ -22,10 +22,11 @@ export default {
   },
   methods: {
     handleVideo() {
-      console.log(this.participant);
+      console.table(this.participant);
       if (!this.participant?.screen) return;
       const videoTrack = this.participant?.screenVideoTrack;
-      console.log("HEYYYYY");
+      console.log("HEYYYYY", this.participant);
+      console.log(JSON.stringify(this.participant));
       console.log(videoTrack);
       const source = new MediaStream([videoTrack]);
       this.videoSource = source;
@@ -34,10 +35,20 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .screenshare-tile {
-  flex: 1 1 90%;
   margin: 10px 20px;
   position: relative;
+  max-width: 670px;
+}
+.tile {
+  max-width: 50%;
+  flex: 1 1 300px;
+  margin: 10px 20px;
+  position: relative;
+}
+video {
+  width: 100%;
+  border-radius: 16px;
 }
 </style>
