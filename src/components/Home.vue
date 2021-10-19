@@ -6,8 +6,10 @@
 
       <form class="join-form" @submit="joinWithName">
         <div class="name-container">
-          <label for="name">Name</label>
+          <label for="name">Your name</label>
           <input type="text" id="name" required v-model="name" />
+          <label for="name">Daily URL</label>
+          <input type="text" id="url" required v-model="url" />
         </div>
         <div class="submit-container">
           <button type="submit">
@@ -17,7 +19,7 @@
       </form>
 
       <p class="subtext">
-        Select "Allow" to use your camera and mic for this call
+        If prompted, select "Allow" to use your camera and mic for this call
       </p>
     </div>
   </main>
@@ -34,11 +36,13 @@ export default {
   data() {
     return {
       name: "",
+      url: "",
     };
   },
   methods: {
     joinWithName() {
-      this.joinCall(this.name);
+      console.log(this.url);
+      this.joinCall(this.name, this.url);
     },
   },
 };
@@ -57,6 +61,9 @@ main {
   margin: auto;
   padding: 0 16px;
 }
+.wrapper p {
+  margin: 8px 0;
+}
 .join-form {
   display: flex;
   flex-direction: column;
@@ -68,7 +75,7 @@ main {
   font-size: 12px;
   color: #6b7785;
   text-align: left;
-  margin-bottom: 4px;
+  margin: 8px 0 4px;
 }
 .join-form input {
   padding: 8px;

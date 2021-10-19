@@ -19,7 +19,7 @@ export default {
   border-radius: 16px;
   margin: 10px 20px;
   max-width: 50%;
-  flex: 1 1 300px;
+  flex: 1 1 350px;
   display: flex;
   flex-direction: column;
   align-items: center;

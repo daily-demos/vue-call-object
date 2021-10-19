@@ -1,7 +1,12 @@
 <template>
   <app-header />
   <home v-if="appState === 'idle'" :joinCall="joinCall" />
-  <call v-else-if="appState === 'incall'" :leaveCall="leaveCall" :name="name" />
+  <call
+    v-else-if="appState === 'incall'"
+    :leaveCall="leaveCall"
+    :name="name"
+    :roomUrl="roomUrl"
+  />
 </template>
 
 <script>
@@ -20,11 +25,13 @@ export default {
     return {
       appState: "idle",
       name: "Guest",
+      roomUrl: null,
     };
   },
   methods: {
-    joinCall(name) {
+    joinCall(name, url) {
       this.name = name;
+      this.roomUrl = url;
       this.appState = "incall";
     },
     leaveCall() {

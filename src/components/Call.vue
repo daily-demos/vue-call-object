@@ -5,10 +5,11 @@
     </template>
     <template v-else>
       <div class="wrapper">
-        <!-- <p>{{ count }}</p> -->
-
         <template v-if="error">
           <p class="error-text">{{ error }}</p>
+          <button class="error-button " @click="leaveAndCleanUp">
+            Refresh
+          </button>
         </template>
 
         <template v-if="showPermissionsError">
@@ -33,7 +34,7 @@
               </template>
 
               <template v-if="count === 1">
-                <waiting-card :url="url" />
+                <waiting-card :url="roomUrl" />
               </template>
             </div>
           </div>
@@ -65,7 +66,7 @@ export default {
     Loading,
     PermissionsErrorMsg,
   },
-  props: ["leaveCall", "name"],
+  props: ["leaveCall", "name", "roomUrl"],
   data() {
     return {
       callObject: null,
@@ -74,14 +75,13 @@ export default {
       messages: [],
       error: false,
       loading: false,
-      url: "https://jessmitch.daily.co/hey",
       screen: null,
       showPermissionsError: false,
     };
   },
   mounted() {
     const option = {
-      url: this.url,
+      url: this.roomUrl,
     };
     const co = daily.createCallObject(option);
     this.callObject = co;
@@ -209,5 +209,15 @@ p {
 }
 .full-height {
   height: 100%;
+}
+.error-button {
+  color: #fff;
+  background-color: #121a24;
+  border: none;
+  font-size: 12px;
+  border: 1px solid #2b3f56;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 </style>

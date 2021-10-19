@@ -25,9 +25,6 @@ export default {
       console.table(this.participant);
       if (!this.participant?.screen) return;
       const videoTrack = this.participant?.screenVideoTrack;
-      console.log("HEYYYYY", this.participant);
-      console.log(JSON.stringify(this.participant));
-      console.log(videoTrack);
       const source = new MediaStream([videoTrack]);
       this.videoSource = source;
     },
@@ -43,7 +40,7 @@ export default {
 }
 .tile {
   max-width: 50%;
-  flex: 1 1 300px;
+  flex: 1 1 350px;
   margin: 10px 20px;
   position: relative;
 }
