@@ -86,6 +86,8 @@ button {
 }
 button:not(.leave) {
   margin: 0 4px;
+  width: 36px;
+  height: 26px;
 }
 button.leave {
   background-color: #f63135;
