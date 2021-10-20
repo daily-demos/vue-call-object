@@ -1,5 +1,5 @@
 <template>
-  <div class="screenshare-tile">
+  <div class="screen-share-tile">
     <video autoPlay muted playsInline :srcObject="videoSource"></video>
   </div>
 </template>
@@ -31,7 +31,7 @@ export default {
 </script>
 
 <style scoped>
-.screenshare-tile {
+.screen-share-tile {
   margin: 10px 20px;
   position: relative;
   max-width: 670px;
