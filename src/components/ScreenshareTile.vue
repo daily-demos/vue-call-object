@@ -16,9 +16,6 @@ export default {
   mounted() {
     this.handleVideo(this.participant);
   },
-  updated() {
-    this.handleVideo(this.participant);
-  },
   methods: {
     // Add srcObject to video element
     handleVideo() {

@@ -76,8 +76,8 @@ export default {
       messages: [],
       error: false,
       loading: false,
-      screen: null,
       showPermissionsError: false,
+      screen: null,
     };
   },
   mounted() {
