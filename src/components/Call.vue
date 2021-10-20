@@ -84,25 +84,35 @@ export default {
     const option = {
       url: this.roomUrl,
     };
+
+    // Create instance of Daily call object
     const co = daily.createCallObject(option);
+    // Assign in data obj for future reference
     this.callObject = co;
 
+    // Join the call with the name set in the Home.vue form
     co.join({ userName: this.name });
 
     // Add call and participant event handler
     // Visit https://docs.daily.co/reference/daily-js/events for more event info
-    co.on("joined-meeting", this.updateParticpants)
-      .on("joining-meeting", this.handleJoiningMeeting)
+    co.on("joining-meeting", this.handleJoiningMeeting)
+      .on("joined-meeting", this.updateParticpants)
       .on("participant-joined", this.updateParticpants)
       .on("participant-updated", this.updateParticpants)
       .on("participant-left", this.updateParticpants)
-      .on("track-started", this.updateParticpants)
-      .on("track-stopped", this.updateParticpants)
       .on("error", this.handleError)
+      // camera-error = device permissions issue
       .on("camera-error", this.handleDeviceError)
+      // app-message handles receiving remote chat messages
       .on("app-message", this.updateMessages);
   },
   methods: {
+    /**
+     * This is called any time a participant update registers.
+     * In large calls, this should be optimized to avoid re-renders.
+     * For example, track-started and track-stopped can be used
+     * to register only video/audio/screen track changes.
+     */
     updateParticpants(e) {
       console.log("[EVENT] ", e);
       if (!this.callObject) return;
@@ -120,29 +130,36 @@ export default {
       }
       this.loading = false;
     },
+    // Add chat message to local message array
     updateMessages(e) {
       console.log("[MESSAGE] ", e.data);
       this.messages.push(e?.data);
     },
+    // Show local error in UI when daily-js reports an error
     handleError(e) {
       console.log("[ERROR] ", e);
       this.error = e?.errorMsg;
       this.loading = false;
     },
+    // Temporary show loading view while joining the call
     handleJoiningMeeting() {
       this.loading = true;
     },
+    // Toggle local microphone in use (on/off)
     handleAudioClick() {
       const audioOn = this.callObject.localAudio();
       this.callObject.setLocalAudio(!audioOn);
     },
+    // Toggle local camera in use (on/off)
     handleVideoClick() {
       const videoOn = this.callObject.localVideo();
       this.callObject.setLocalVideo(!videoOn);
     },
+    // Show permissions error in UI to alert local participant
     handleDeviceError() {
       this.showPermissionsError = true;
     },
+    // Toggle screen share
     handleScreenshareClick() {
       if (this.screen?.local) {
         this.callObject.stopScreenShare();
@@ -151,6 +168,12 @@ export default {
         this.callObject.startScreenShare();
       }
     },
+    /**
+     * Send broadcast message to all remote call participants.
+     * The local participant updates their own message history
+     * because they do no receive an app-message event for their
+     * own messages.
+     */
     sendMessage(text) {
       // Messages are sent local and received by everyone, so set the username when it's sent.
       const local = this.callObject.participants().local;
@@ -158,6 +181,7 @@ export default {
       this.messages.push(message);
       this.callObject.sendAppMessage(message, "*");
     },
+    // leave call, destroy cll object, and reset local state values
     leaveAndCleanUp() {
       if (this.screen?.local) {
         this.callObject.stopScreenShare();
