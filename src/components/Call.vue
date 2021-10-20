@@ -100,7 +100,6 @@ export default {
       .on("track-stopped", this.updateParticpants)
       .on("error", this.handleError)
       .on("camera-error", this.handleDeviceError)
-      .on("left-meeting", this.leaveAndCleanUp)
       .on("app-message", this.updateMessages);
   },
   methods: {
