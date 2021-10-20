@@ -20,7 +20,6 @@ export default {
   props: ["reset"],
   methods: {
     tryAgain() {
-      console.log("click");
       this.reset();
     },
   },

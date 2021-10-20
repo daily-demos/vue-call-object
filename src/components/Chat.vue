@@ -10,6 +10,7 @@
         </template>
       </button>
     </div>
+    
     <div class="chat-container">
       <div class="messages">
         <p v-for="(chat, i) in messages" :key="i" class="chat-message">

@@ -41,7 +41,6 @@ export default {
   },
   methods: {
     joinWithName() {
-      console.log(this.url);
       this.joinCall(this.name, this.url);
     },
   },

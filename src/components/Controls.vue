@@ -20,7 +20,7 @@
       </button>
 
       <template v-if="supportsScreenshare">
-        <button @click="handleScreenshareClick">
+        <button @click="handleScreenshareClick" :disabled="disableScreenShare">
           <img class="icon" :src="screenshare" alt="" />
         </button>
       </template>
@@ -43,6 +43,7 @@ export default {
     "handleAudioClick",
     "handleScreenshareClick",
     "leaveCall",
+    "disableScreenShare"
   ],
   data() {
     return {
@@ -90,6 +91,10 @@ button.leave {
   opacity: 0.85;
   padding: 14px 16px 15px;
   border-radius: 12px;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 .icon {
   height: 24px;

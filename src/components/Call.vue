@@ -30,6 +30,7 @@
                   :handleAudioClick="handleAudioClick"
                   :handleScreenshareClick="handleScreenshareClick"
                   :leaveCall="leaveAndCleanUp"
+                  :disableScreenShare="screen && !screen?.local"
                 />
               </template>
 
@@ -99,18 +100,21 @@ export default {
       .on("track-stopped", this.updateParticpants)
       .on("error", this.handleError)
       .on("camera-error", this.handleDeviceError)
+      .on("left-meeting", this.leaveAndCleanUp)
       .on("app-message", this.updateMessages);
   },
   methods: {
     updateParticpants(e) {
       console.log("[EVENT] ", e);
       if (!this.callObject) return;
+
       const p = this.callObject.participants();
       this.count = Object.values(p).length;
       this.participants = Object.values(p);
 
-      const screen = this.participants.filter((p) => p.screen);
+      const screen = this.participants.filter((p) => p.screenVideoTrack);
       if (screen?.length && !this.screen) {
+        console.log("[SCREEN]", screen);
         this.screen = screen[0];
       } else if (!screen?.length && this.screen) {
         this.screen = null;
@@ -141,8 +145,9 @@ export default {
       this.showPermissionsError = true;
     },
     handleScreenshareClick() {
-      if (this.participants?.local?.screen) {
+      if (this.screen?.local) {
         this.callObject.stopScreenShare();
+        this.screen = null;
       } else {
         this.callObject.startScreenShare();
       }
@@ -155,10 +160,14 @@ export default {
       this.callObject.sendAppMessage(message, "*");
     },
     leaveAndCleanUp() {
+      if (this.screen?.local) {
+        this.callObject.stopScreenShare();
+      }
       this.callObject.leave().then(() => {
         this.callObject.destroy();
 
         this.participantWithScreenshare = null;
+        this.screen = null;
         this.leaveCall();
       });
     },
@@ -200,6 +209,7 @@ main {
   flex-wrap: wrap;
   width: 100%;
   background-color: #121a24;
+  height: inherit;
 }
 p {
   color: white;

@@ -20,6 +20,7 @@
         :handleScreenshareClick="handleScreenshareClick"
         :participant="participant"
         :leaveCall="leaveCall"
+        :disableScreenShare="disableScreenShare"
       />
     </template>
   </div>
@@ -41,6 +42,7 @@ export default {
     "handleAudioClick",
     "handleScreenshareClick",
     "leaveCall",
+    "disableScreenShare"
   ],
   data() {
     return {

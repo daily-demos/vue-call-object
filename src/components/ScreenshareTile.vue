@@ -14,7 +14,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.participant.screenVideoTrack);
     this.handleVideo(this.participant);
   },
   updated() {
@@ -22,7 +21,6 @@ export default {
   },
   methods: {
     handleVideo() {
-      console.table(this.participant);
       if (!this.participant?.screen) return;
       const videoTrack = this.participant?.screenVideoTrack;
       const source = new MediaStream([videoTrack]);
