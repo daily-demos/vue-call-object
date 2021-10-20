@@ -42,7 +42,7 @@ export default {
     "handleAudioClick",
     "handleScreenshareClick",
     "leaveCall",
-    "disableScreenShare"
+    "disableScreenShare",
   ],
   data() {
     return {
@@ -67,12 +67,14 @@ export default {
     }
   },
   methods: {
+    // Add srcObject to video element
     handleVideo() {
       if (!this.participant?.video) return;
       const videoTrack = this.participant?.tracks?.video?.persistentTrack;
       const source = new MediaStream([videoTrack]);
       this.videoSource = source;
     },
+    // Add srcObject to audio element
     handleAudio() {
       if (this.participant?.local) return;
       if (!this.participant?.tracks?.audio?.persistentTrack) return;

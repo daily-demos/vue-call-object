@@ -106,6 +106,19 @@ export default {
       // app-message handles receiving remote chat messages
       .on("app-message", this.updateMessages);
   },
+  unmounted() {
+    if (!this.callObject) return;
+    // Clean-up event handlers
+    this.callObject
+      .off("joining-meeting", this.handleJoiningMeeting)
+      .off("joined-meeting", this.updateParticpants)
+      .off("participant-joined", this.updateParticpants)
+      .off("participant-updated", this.updateParticpants)
+      .off("participant-left", this.updateParticpants)
+      .off("error", this.handleError)
+      .off("camera-error", this.handleDeviceError)
+      .off("app-message", this.updateMessages);
+  },
   methods: {
     /**
      * This is called any time a participant update registers.

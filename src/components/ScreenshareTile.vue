@@ -20,6 +20,7 @@ export default {
     this.handleVideo(this.participant);
   },
   methods: {
+    // Add srcObject to video element
     handleVideo() {
       if (!this.participant?.screen) return;
       const videoTrack = this.participant?.screenVideoTrack;

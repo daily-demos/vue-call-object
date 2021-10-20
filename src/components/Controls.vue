@@ -57,6 +57,7 @@ export default {
     };
   },
   mounted() {
+    // Only show the screen share button if the browser supports it
     this.supportsScreenshare = daily.supportedBrowser().supportsScreenShare;
   },
 };

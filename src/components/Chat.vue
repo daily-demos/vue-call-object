@@ -10,7 +10,7 @@
         </template>
       </button>
     </div>
-    
+
     <div class="chat-container">
       <div class="messages">
         <p v-for="(chat, i) in messages" :key="i" class="chat-message">
@@ -52,9 +52,11 @@ export default {
     };
   },
   methods: {
+    // Toggle chat's view (open/closed)
     handleChatClick() {
       this.chatIsOpen = !this.chatIsOpen;
     },
+    // Send chat message using prop method from Call.vue
     submitForm(e) {
       e.preventDefault();
       const message = e?.target?.value.replace("\n", "");

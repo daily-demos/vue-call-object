@@ -29,11 +29,15 @@ export default {
     };
   },
   methods: {
+    /**
+     * Set name and URL values entered in Home.vue form in data obj
+     */
     joinCall(name, url) {
       this.name = name;
       this.roomUrl = url;
       this.appState = "incall";
     },
+    // Reset app state to return to the home screen after leaving call
     leaveCall() {
       this.appState = "idle";
     },

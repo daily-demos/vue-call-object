@@ -40,6 +40,7 @@ export default {
     };
   },
   methods: {
+    // Submit form with prop method defined in App.vue
     joinWithName() {
       this.joinCall(this.name, this.url);
     },
