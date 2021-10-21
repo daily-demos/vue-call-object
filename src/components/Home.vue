@@ -9,7 +9,13 @@
           <label for="name">Your name</label>
           <input type="text" id="name" required v-model="name" />
           <label for="name">Daily URL</label>
-          <input type="text" id="url" required v-model="url" />
+          <input
+            type="text"
+            id="url"
+            placeholder="https://your-daily-domain.daily.co/room-name"
+            required
+            v-model="url"
+          />
         </div>
         <div class="submit-container">
           <button type="submit">
