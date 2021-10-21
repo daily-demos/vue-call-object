@@ -1,12 +1,15 @@
 <template>
   <main>
+    <!-- loading is true when the call is in the "joining-meeting" meeting state -->
     <template v-if="loading">
       <div class="loading-spinner"><loading /></div>
     </template>
+
     <template v-else>
       <div class="wrapper">
         <template v-if="error">
           <p class="error-text">{{ error }}</p>
+          <!-- refreshing will leave the call and reset the app state -->
           <button class="error-button " @click="leaveAndCleanUp">
             Refresh
           </button>
@@ -22,6 +25,7 @@
             <template v-if="screen">
               <screenshare-tile :participant="screen" />
             </template>
+
             <div class="participants-container" v-if="participants">
               <template v-for="p in participants" :key="p.session_id">
                 <video-tile
