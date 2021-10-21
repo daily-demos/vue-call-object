@@ -4,6 +4,8 @@ This project demonstrates how to build a custom video call with Daily's custom [
 
 <img src="homescreen.png" alt="Demo home screen">
 
+To view a deployed example of this demo, visit [https://vue-call-object.netlify.app](https://vue-call-object.netlify.app).
+
 ---
 
 ## Running this demo locally
