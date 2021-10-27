@@ -18,6 +18,7 @@
         <template v-if="showPermissionsError">
           <permissions-error-msg :reset="leaveAndCleanUp" />
         </template>
+
         <template v-else>
           <div
             :class="screen ? 'tile-container' : 'tile-container full-height'"
@@ -188,17 +189,17 @@ export default {
     /**
      * Send broadcast message to all remote call participants.
      * The local participant updates their own message history
-     * because they do no receive an app-message event for their
+     * because they do no receive an app-message Daily event for their
      * own messages.
      */
     sendMessage(text) {
-      // Messages are sent local and received by everyone, so set the username when it's sent.
+      // Attach the local participant's username to the message to be displayed in Chat.vue
       const local = this.callObject.participants().local;
       const message = { message: text, name: local?.user_name || "Guest" };
       this.messages.push(message);
       this.callObject.sendAppMessage(message, "*");
     },
-    // leave call, destroy cll object, and reset local state values
+    // leave call, destroy call object, and reset local state values
     leaveAndCleanUp() {
       if (this.screen?.local) {
         this.callObject.stopScreenShare();

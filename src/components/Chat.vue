@@ -59,9 +59,7 @@ export default {
     // Send chat message using prop method from Call.vue
     submitForm(e) {
       e.preventDefault();
-      const message = e?.target?.value.replace("\n", "");
-      // don't send empty messages
-      if (!message) return;
+      const message = this.text.replace("\n", "");
 
       this.sendMessage(message);
       this.text = "";
