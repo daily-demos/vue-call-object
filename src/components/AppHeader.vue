@@ -2,7 +2,7 @@
   <header>
     <div>
       <div class="row">
-        <a class="right-border" href="https://daily.co">
+        <a class="right-border" href="https://daily.co" target="_blank">
           <img class="icon" :src="daily" alt="Daily.co" />
         </a>
         <img class="icon" src="../assets/logo.png" alt="Daily.co" />
@@ -10,12 +10,23 @@
       </div>
       <div class="row">
         <div class="right-border">
-          <a class="button-link" href="" rel="noreferrer noopener">
+          <a
+            target="_blank"
+            class="button-link"
+            href="https://docs.daily.co/reference/daily-js"
+            rel="noreferrer noopener"
+          >
             <span>API docs</span>
             <img :src="newtab" alt="Open in new tab" />
           </a>
         </div>
-        <img class="icon" :src="github" alt="Github repo" />
+        <a
+          href="https://github.com/daily-demos/vue-call-object"
+          rel="noreferrer noopener"
+          target="_blank"
+        >
+          <img class="icon" :src="github" alt="Github repo" />
+        </a>
       </div>
     </div>
   </header>
