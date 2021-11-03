@@ -24,7 +24,7 @@
           <textarea
             id="message"
             type="text"
-            @keyup.enter="submitForm"
+            @keydown.enter="submitForm"
             v-model="text"
             placeholder="Type a message..."
           />
@@ -59,9 +59,8 @@ export default {
     // Send chat message using prop method from Call.vue
     submitForm(e) {
       e.preventDefault();
-      const message = this.text.replace("\n", "");
 
-      this.sendMessage(message);
+      this.sendMessage(this.text);
       this.text = "";
     },
   },
