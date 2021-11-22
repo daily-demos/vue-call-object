@@ -54,3 +54,12 @@ Some features that could be added to this demo include:
 - Adding [prejoin UI](https://www.daily.co/blog/build-your-own-prejoin-call-ui-in-a-custom-daily-video-chat-app/) to test devices and see your local video before joining
 - Allowing users to create rooms via the app using Daily's [REST API](https://docs.staging.daily.co/reference/rest-api/rooms)
 - Managing meeting permissions via [room settings](https://docs.staging.daily.co/guides/controlling-who-joins-a-meeting), like making the call a [broadcast call](https://www.daily.co/blog/daily-prebuilt-broadcast-call-deep-dive/)
+
+---
+
+## Related blog posts/tutorials
+
+Learn more about this demo on the [Daily blog](https://www.daily.co/blog/tag/vue/).
+
+- [Build a custom video chat app with Daily and Vue.js](https://www.daily.co/blog/custom-video-chat-app-with-daily-and-vue/)
+- [Build a custom chat widget in Vue with Daily’s sendAppMessage](https://www.daily.co/blog/build-a-custom-chat-widget-with-vue-with-dailys-sendappmessage-method/)
