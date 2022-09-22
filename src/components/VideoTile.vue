@@ -71,7 +71,7 @@ export default {
       // If the participant has their video off,
       // early out.
       if (!p?.video) return;
-      
+
       const track = p.tracks.video.persistentTrack;
       const newStream = this.updateSource(this.videoSource, track);
       if (newStream) {
@@ -108,7 +108,7 @@ export default {
       }
       const existingTrack = existingTracks[0];
       // If existing track is different from the new track,
-      // removec the existing track and add the new one.
+      // remove the existing track and add the new one.
       if (newTrack.id !== existingTrack.id) {
         stream.removeTrack(existingTrack);
         stream.addTrack(newTrack);
