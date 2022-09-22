@@ -58,30 +58,63 @@ export default {
   },
   updated() {
     this.username = this.participant?.user_name;
-
-    if (!this.videoSource) {
-      this.handleVideo(this.participant);
-    }
-    if (!this.audioSource) {
-      this.handleAudio(this.participant);
-    }
+    // For later optimization, this can be done more selectively
+    // using "track-started" and "track-stopped" events.
+    this.handleVideo(this.participant);
+    this.handleAudio(this.participant);
   },
   methods: {
     // Add srcObject to video element
     handleVideo() {
-      if (!this.participant?.video) return;
-      const videoTrack = this.participant?.tracks?.video?.persistentTrack;
-      const source = new MediaStream([videoTrack]);
-      this.videoSource = source;
+      const p = this.participant;
+
+      // If the participant has their video off,
+      // early out.
+      if (!p?.video) return;
+
+      const track = p.tracks.video.persistentTrack;
+      const newStream = this.updateSource(this.videoSource, track);
+      if (newStream) {
+        this.videoSource = newStream;
+      }
     },
+
     // Add srcObject to audio element
     handleAudio() {
-      if (this.participant?.local) return;
-      if (!this.participant?.tracks?.audio?.persistentTrack) return;
-      const audioTrack = this.participant?.tracks?.audio?.persistentTrack;
-      const source = new MediaStream([audioTrack]);
-      this.audioSource = source;
+      const p = this.participant;
+      // If the participant is local or has their audio off,
+      // early out.
+      if (!p || p.local || !p.audio) return;
+
+      const track = p.tracks.audio.persistentTrack;
+      const newStream = this.updateSource(this.audioSource, track);
+      if (newStream) {
+        this.audioSource = newStream;
+      }
     },
+
+    // updateSource() updates the given stream with new tracks OR
+    // returns an entirely new stream to the caller.
+    updateSource(stream, newTrack) {
+      const existingTracks = stream?.getTracks();
+      // If the stream parameter contains no existing tracks,
+      // just return a new MediaStream to set. This should
+      // only happen the first time the tile is initialized.
+      if (!existingTracks || existingTracks.length === 0) {
+        return new MediaStream([newTrack]);
+      }
+      if (existingTracks.length > 1) {
+        console.warn(`expected 1 track, found ${existingTracks.length}. Only using the first one.`);
+      }
+      const existingTrack = existingTracks[0];
+      // If existing track is different from the new track,
+      // remove the existing track and add the new one.
+      if (newTrack.id !== existingTrack.id) {
+        stream.removeTrack(existingTrack);
+        stream.addTrack(newTrack);
+      }
+      return null;
+    }
   },
 };
 </script>
