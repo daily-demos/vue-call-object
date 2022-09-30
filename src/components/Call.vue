@@ -76,7 +76,7 @@ export default {
   data() {
     return {
       callObject: null,
-      participants: null,
+      participants: [],
       count: 0,
       messages: [],
       error: false,
@@ -109,7 +109,10 @@ export default {
       // camera-error = device permissions issue
       .on("camera-error", this.handleDeviceError)
       // app-message handles receiving remote chat messages
-      .on("app-message", this.updateMessages);
+      .on("app-message", this.updateMessages)
+      .on("nonfatal-error", (event) => {
+        console.info("nonfatal-error", event);
+      })
   },
   unmounted() {
     if (!this.callObject) return;
@@ -122,7 +125,7 @@ export default {
       .off("participant-left", this.updateParticpants)
       .off("error", this.handleError)
       .off("camera-error", this.handleDeviceError)
-      .off("app-message", this.updateMessages);
+      .off("app-message", this.updateMessages)
   },
   methods: {
     /**
@@ -165,11 +168,13 @@ export default {
     },
     // Toggle local microphone in use (on/off)
     handleAudioClick() {
+      if (!this.callObject) return;
       const audioOn = this.callObject.localAudio();
       this.callObject.setLocalAudio(!audioOn);
     },
     // Toggle local camera in use (on/off)
     handleVideoClick() {
+      if (!this.callObject) return;
       const videoOn = this.callObject.localVideo();
       this.callObject.setLocalVideo(!videoOn);
     },
@@ -179,6 +184,7 @@ export default {
     },
     // Toggle screen share
     handleScreenshareClick() {
+      if (!this.callObject) return;
       if (this.screen?.local) {
         this.callObject.stopScreenShare();
         this.screen = null;
@@ -193,6 +199,7 @@ export default {
      * own messages.
      */
     sendMessage(text) {
+      if (!this.callObject) return;
       // Attach the local participant's username to the message to be displayed in Chat.vue
       const local = this.callObject.participants().local;
       const message = { message: text, name: local?.user_name || "Guest" };
@@ -201,11 +208,12 @@ export default {
     },
     // leave call, destroy call object, and reset local state values
     leaveAndCleanUp() {
+      if (!this.callObject) return;
       if (this.screen?.local) {
         this.callObject.stopScreenShare();
       }
       this.callObject.leave().then(() => {
-        this.callObject.destroy();
+        this.callObject?.destroy();
 
         this.participantWithScreenshare = null;
         this.screen = null;
