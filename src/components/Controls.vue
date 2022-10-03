@@ -2,7 +2,7 @@
   <div class="controls">
     <div class="devices">
       <button @click="handleAudioClick">
-        <template v-if="participant.audio">
+        <template v-if="audioTrack">
           <img class="icon" :src="micOn" alt="" />
         </template>
         <template v-else>
@@ -11,7 +11,7 @@
       </button>
 
       <button @click="handleVideoClick">
-        <template v-if="participant.video">
+        <template v-if="videoTrack">
           <img class="icon" :src="videoOn" alt="" />
         </template>
         <template v-else>
@@ -38,7 +38,8 @@ import daily from "@daily-co/daily-js";
 export default {
   name: "Controls",
   props: [
-    "participant",
+    "audioTrack",
+    "videoTrack",
     "handleVideoClick",
     "handleAudioClick",
     "handleScreenshareClick",

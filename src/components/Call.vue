@@ -30,7 +30,10 @@
             <div class="participants-container" v-if="participants">
               <template v-for="p in participants" :key="p.session_id">
                 <video-tile
-                  :participant="p"
+                  :username="p.user_name ?? 'Guest'"
+                  :videoTrack="p.tracks.video.persistentTrack"
+                  :audioTrack="p.tracks.audio.persistentTrack"
+                  :isLocal="p.local"
                   :handleVideoClick="handleVideoClick"
                   :handleAudioClick="handleAudioClick"
                   :handleScreenshareClick="handleScreenshareClick"

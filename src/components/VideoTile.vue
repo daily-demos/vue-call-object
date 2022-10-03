@@ -1,24 +1,21 @@
 <template>
   <div class="tile">
-    <audio autoPlay playsInline :srcObject="audioSource">
+    <audio autoPlay playsInline ref="audio">
       <track kind="captions" />
     </audio>
 
-    <template v-if="participant.video">
-      <video autoPlay muted playsInline :srcObject="videoSource"></video>
-      <p class="participant-name">{{ username }}</p>
-    </template>
+    <video v-show="videoTrack" autoPlay muted playsInline ref="video"></video>
+    <p v-show="videoTrack" class="participant-name">{{ username }}</p>
 
-    <template v-else>
-      <no-video-tile :username="username"></no-video-tile>
-    </template>
+    <no-video-tile v-show="!videoTrack" :username="username"></no-video-tile>
 
-    <template v-if="participant.local">
+    <template v-if="isLocal">
       <controls
         :handleVideoClick="handleVideoClick"
         :handleAudioClick="handleAudioClick"
         :handleScreenshareClick="handleScreenshareClick"
-        :participant="participant"
+        :audioTrack="audioTrack"
+        :videoTrack="videoTrack"
         :leaveCall="leaveCall"
         :disableScreenShare="disableScreenShare"
       />
@@ -37,59 +34,46 @@ export default {
     NoVideoTile,
   },
   props: [
-    "participant",
+    "username",
+    "videoTrack",
+    "audioTrack",
+    "isLocal",
     "handleVideoClick",
     "handleAudioClick",
     "handleScreenshareClick",
     "leaveCall",
     "disableScreenShare",
   ],
-  data() {
-    return {
-      videoSource: null,
-      audioSource: null,
-      username: "Guest",
-    };
-  },
   mounted() {
-    this.username = this.participant?.user_name;
-    this.handleVideo(this.participant);
-    this.handleAudio(this.participant);
+    this.handleVideo(this.videoTrack);
+    this.handleAudio(this.audioTrack);
   },
   updated() {
-    this.username = this.participant?.user_name;
-    // For later optimization, this can be done more selectively
-    // using "track-started" and "track-stopped" events.
-    this.handleVideo(this.participant);
-    this.handleAudio(this.participant);
+    console.log("VUE UPDATED");
+    // this.username = this.participant?.user_name;
+    // // For later optimization, this can be done more selectively
+    // // using "track-started" and "track-stopped" events.
+    // this.handleVideo(this.participant);
+    // this.handleAudio(this.participant);
   },
   methods: {
     // Add srcObject to video element
-    handleVideo() {
-      const p = this.participant;
-
-      // If the participant has their video off,
-      // early out.
-      if (!p?.video) return;
-
-      const track = p.tracks.video.persistentTrack;
-      const newStream = this.updateSource(this.videoSource, track);
+    handleVideo(track) {
+      const newStream = this.updateSource(this.$refs.video.srcObject, track);
       if (newStream) {
-        this.videoSource = newStream;
+        this.$refs.video.srcObject = newStream;
       }
     },
 
     // Add srcObject to audio element
-    handleAudio() {
-      const p = this.participant;
+    handleAudio(audioTrack) {
       // If the participant is local or has their audio off,
       // early out.
-      if (!p || p.local || !p.audio) return;
+      if (this.isLocal || !audioTrack) return;
 
-      const track = p.tracks.audio.persistentTrack;
-      const newStream = this.updateSource(this.audioSource, track);
+      const newStream = this.updateSource(this.$refs.audio.srcObject, audioTrack);
       if (newStream) {
-        this.audioSource = newStream;
+        this.$refs.audio.srcObject = newStream;
       }
     },
 
@@ -97,6 +81,7 @@ export default {
     // returns an entirely new stream to the caller.
     updateSource(stream, newTrack) {
       const existingTracks = stream?.getTracks();
+      console.log("newTrack: ", newTrack)
       // If the stream parameter contains no existing tracks,
       // just return a new MediaStream to set. This should
       // only happen the first time the tile is initialized.
