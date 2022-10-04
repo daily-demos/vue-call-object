@@ -46,7 +46,7 @@ export default {
   ],
   mounted() {
     // eslint-disable-next-line no-debugger
-    this.handleVideo(this.videoTrack);
+    // this.handleVideo(this.videoTrack);
     this.handleAudio(this.audioTrack);
   },
   updated() {
@@ -54,42 +54,41 @@ export default {
     // this.username = this.participant?.user_name;
     // For later optimization, this can be done more selectively
     // using "track-started" and "track-stopped" events.
-    this.handleVideo(this.videoTrack);
+    // this.handleVideo(this.videoTrack);
     this.handleAudio(this.audioTrack);
   },
   methods: {
     // Add srcObject to video element
     handleVideo(track) {
+      console.log("HANDLE VIDEO");
       if (!track) return;
+      if (!this.$refs.video.srcObject) {
+        this.$refs.video.srcObject = new MediaStream();
+      }
       console.log("this.$refs.video.srcObject", this.$refs.video.srcObject);
       const existingStream = this.$refs.video.srcObject;
       const existingTracks = existingStream?.getVideoTracks() ?? [];
       this.refreshTrack(existingStream, existingTracks, track);
     },
     // Add srcObject to audio element
-    handleAudio(audioTrack) {
+    handleAudio(track) {
       // If the participant is local or has their audio off,
       // early out.
-      if (this.isLocal || !audioTrack) return;
-      this.refreshAudioTrack(this.$refs.audio.srcObject, audioTrack);
-    },
-    refreshAudioTrack(existingStream, newAudioTrack) {
-      // If there is no new track, just early out
-      // and keep the old track on the stream as-is.
-      if (!newAudioTrack) return;
-      const existingTracks = existingStream?.getAudioTracks() ?? [];
-      this.refreshTrack(existingStream, existingTracks, newAudioTrack);
-    },
-    refreshTrack(existingStream, oldTracks, newTrack = new MediaStreamTrack()) {
-      if (!existingStream) {
-        existingStream = new MediaStream();
+      if (this.isLocal || !track) return;
+      if (!this.$refs.audio.srcObject) {
+        this.$refs.audio.srcObject = new MediaStream();
       }
+      const existingStream = this.$refs.audio.srcObject;
+      const existingTracks = existingStream.getAudioTracks() ?? [];
+      this.refreshTrack(existingStream, existingTracks, track);
+    },
+    refreshTrack(existingStream, oldTracks, newTrack) {
+
       const trackCount = oldTracks.length;
       // If there is no matching old track,
       // just add the new track.
       if (trackCount === 0) {
         existingStream.addTrack(newTrack);
-        this.$refs.video.srcObject = existingStream;
         return;
       }
       if (trackCount > 1) {
@@ -105,7 +104,6 @@ export default {
         existingStream.addTrack(newTrack);
       }
 
-      this.$refs.video.srcObject = existingStream;
     },
   },
 };
