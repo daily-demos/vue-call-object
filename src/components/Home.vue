@@ -41,8 +41,8 @@ export default {
   },
   data() {
     return {
-      name: "",
-      url: "",
+      name: "James Hush",
+      url: "https://hush.daily.co/meet",
     };
   },
   methods: {

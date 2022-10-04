@@ -30,10 +30,10 @@
             <div class="participants-container" v-if="participants">
               <template v-for="p in participants" :key="p.session_id">
                 <video-tile
-                  :username="p.user_name ?? 'Guest'"
-                  :videoTrack="p.tracks.video.persistentTrack"
-                  :audioTrack="p.tracks.audio.persistentTrack"
-                  :isLocal="p.local"
+                  :username="p.username"
+                  :videoTrack="p.videoTrack"
+                  :audioTrack="p.audioTrack"
+                  :isLocal="p.isLocal"
                   :handleVideoClick="handleVideoClick"
                   :handleAudioClick="handleAudioClick"
                   :handleScreenshareClick="handleScreenshareClick"
@@ -89,6 +89,7 @@ export default {
     };
   },
   mounted() {
+    // eslint-disable-next-line no-debugger
     const option = {
       url: this.roomUrl,
     };
@@ -105,17 +106,19 @@ export default {
     // Visit https://docs.daily.co/reference/daily-js/events for more event info
     co.on("joining-meeting", this.handleJoiningMeeting)
       .on("joined-meeting", this.updateParticpants)
-      .on("participant-joined", this.updateParticpants)
-      .on("participant-updated", this.updateParticpants)
-      .on("participant-left", this.updateParticpants)
+      .on("participant-joined", this.updateTrack)
+      .on("participant-updated", this.updateTrack)
+      .on("participant-left", this.updateTrack)
       .on("error", this.handleError)
+      .on("nonfatal-error", (event) => {
+        console.info("nonfatal-error", event);
+      })
       // camera-error = device permissions issue
       .on("camera-error", this.handleDeviceError)
       // app-message handles receiving remote chat messages
       .on("app-message", this.updateMessages)
-      .on("nonfatal-error", (event) => {
-        console.info("nonfatal-error", event);
-      })
+      .on("track-started", this.updateTrack)
+      .on("track-stopped", this.updateTrack);
   },
   unmounted() {
     if (!this.callObject) return;
@@ -129,8 +132,65 @@ export default {
       .off("error", this.handleError)
       .off("camera-error", this.handleDeviceError)
       .off("app-message", this.updateMessages)
+      .off("track-started", this.updateParticpants)
+      .off("track-stopped", this.updateParticpants);
   },
   methods: {
+    getParticipantTracks(p) {
+      const mediaTracks = {
+        videoTrack: null,
+        audioTrack: null,
+      };
+
+      const tracks = p?.tracks;
+      if (!tracks) return mediaTracks;
+
+      const vt = tracks.video;
+      const vs = vt?.state;
+      if (vt.persistentTrack && (vs === "playable" || vs === "loading")) {
+        mediaTracks.videoTrack = vt.persistentTrack;
+      }
+
+      // Only get audio track if this is a remote participant
+      if (!p.local) {
+        const at = tracks.audio;
+        const as = at?.state;
+        if (at.persistentTrack && (as === "playable" || as === "loading")) {
+          mediaTracks.audioTrack = at.persistentTrack;
+        }
+      }
+      return mediaTracks;
+    },
+    updateTrack(e) {
+      console.log("[EVENT] ", e);
+      const { participant } = e;
+      if (!participant) return;
+      const { videoTrack, audioTrack } = this.getParticipantTracks(participant);
+
+      const existingParticipant = this.participants.find(
+        (p) => p.session_id === participant.session_id
+      );
+      if (existingParticipant) {
+        this.participants = this.participants.map((p) => {
+          if (p.session_id === participant.session_id) {
+            p.videoTrack = videoTrack;
+            p.audioTrack = audioTrack;
+          }
+          return p;
+        });
+      } else {
+        this.participants.push({
+          sessionId: participant.session_id,
+          username: participant.user_name ?? "Guest",
+          isLocal: participant.local,
+          videoTrack,
+          audioTrack,
+        });
+      }
+
+      console.log("this.participants", this.participants)
+      this.loading= false;
+    },
     /**
      * This is called any time a participant update registers.
      * In large calls, this should be optimized to avoid re-renders.
@@ -141,9 +201,18 @@ export default {
       console.log("[EVENT] ", e);
       if (!this.callObject) return;
 
-      const p = this.callObject.participants();
-      this.count = Object.values(p).length;
-      this.participants = Object.values(p);
+      const participants = this.callObject.participants();
+      this.count = Object.values(participants).length;
+      this.participants = participants.map((p) => {
+        const { videoTrack, audioTrack } = this.getParticipantTracks(p);
+        return {
+          sessionId: p.session_id,
+          username: p.user_name ?? "Guest",
+          isLocal: p.local,
+          videoTrack,
+          audioTrack,
+        };
+      });
 
       const screen = this.participants.filter((p) => p.screenVideoTrack);
       if (screen?.length && !this.screen) {

@@ -45,61 +45,71 @@ export default {
     "disableScreenShare",
   ],
   mounted() {
+    // eslint-disable-next-line no-debugger
     this.handleVideo(this.videoTrack);
     this.handleAudio(this.audioTrack);
   },
   updated() {
     console.log("VUE UPDATED");
     // this.username = this.participant?.user_name;
-    // // For later optimization, this can be done more selectively
-    // // using "track-started" and "track-stopped" events.
-    // this.handleVideo(this.participant);
-    // this.handleAudio(this.participant);
+    // For later optimization, this can be done more selectively
+    // using "track-started" and "track-stopped" events.
+    this.handleVideo(this.videoTrack);
+    this.handleAudio(this.audioTrack);
   },
   methods: {
     // Add srcObject to video element
     handleVideo(track) {
-      const newStream = this.updateSource(this.$refs.video.srcObject, track);
-      if (newStream) {
-        this.$refs.video.srcObject = newStream;
-      }
+      console.log("this.$refs.video.srcObject", this.$refs.video.srcObject);
+      this.refreshVideoTrack(this.$refs.video.srcObject, track);
     },
-
     // Add srcObject to audio element
     handleAudio(audioTrack) {
       // If the participant is local or has their audio off,
       // early out.
       if (this.isLocal || !audioTrack) return;
-
-      const newStream = this.updateSource(this.$refs.audio.srcObject, audioTrack);
-      if (newStream) {
-        this.$refs.audio.srcObject = newStream;
-      }
+      this.refreshAudioTrack(this.$refs.audio.srcObject, audioTrack);
     },
+    refreshAudioTrack(existingStream, newAudioTrack) {
+      // If there is no new track, just early out
+      // and keep the old track on the stream as-is.
+      if (!newAudioTrack) return;
+      const existingTracks = existingStream?.getAudioTracks() ?? [];
+      this.refreshTrack(existingStream, existingTracks, newAudioTrack);
+    },
+    refreshVideoTrack(existingStream, newVideoTrack) {
+      // If there is no new track, just early out
+      // and keep the old track on the stream as-is.
+      if (!newVideoTrack) return;
+      const existingTracks = existingStream?.getVideoTracks() ?? [];
+      this.refreshTrack(existingStream, existingTracks, newVideoTrack);
+    },
+    refreshTrack(existingStream, oldTracks, newTrack) {
+      if (!existingStream) {
+        existingStream = new MediaStream();
+        this.$refs.video.srcObject = existingStream;
+      }
+      const trackCount = oldTracks.length;
+      // If there is no matching old track,
+      // just add the new track.
+      if (trackCount === 0) {
+        existingStream.addTrack(newTrack);
+        return;
+      }
+      if (trackCount > 1) {
+        console.warn(
+          `expected up to 1 media track, but got ${trackCount}. Only using the first one.`
+        );
+      }
+      const oldTrack = oldTracks[0];
+      // If the IDs of the old and new track don't match,
+      // replace the old track with the new one.
+      if (oldTrack.id !== newTrack.id) {
+        existingStream.removeTrack(oldTrack);
+        existingStream.addTrack(newTrack);
+      }
 
-    // updateSource() updates the given stream with new tracks OR
-    // returns an entirely new stream to the caller.
-    updateSource(stream, newTrack) {
-      const existingTracks = stream?.getTracks();
-      console.log("newTrack: ", newTrack)
-      // If the stream parameter contains no existing tracks,
-      // just return a new MediaStream to set. This should
-      // only happen the first time the tile is initialized.
-      if (!existingTracks || existingTracks.length === 0) {
-        return new MediaStream([newTrack]);
-      }
-      if (existingTracks.length > 1) {
-        console.warn(`expected 1 track, found ${existingTracks.length}. Only using the first one.`);
-      }
-      const existingTrack = existingTracks[0];
-      // If existing track is different from the new track,
-      // remove the existing track and add the new one.
-      if (newTrack.id !== existingTrack.id) {
-        stream.removeTrack(existingTrack);
-        stream.addTrack(newTrack);
-      }
-      return null;
-    }
+    },
   },
 };
 </script>
