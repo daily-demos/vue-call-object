@@ -89,7 +89,6 @@ export default {
     };
   },
   mounted() {
-    // eslint-disable-next-line no-debugger
     const option = {
       url: this.roomUrl,
     };
@@ -106,9 +105,9 @@ export default {
     // Visit https://docs.daily.co/reference/daily-js/events for more event info
     co.on("joining-meeting", this.handleJoiningMeeting)
       .on("joined-meeting", this.updateParticpants)
-      .on("participant-joined", this.updateTrack)
-      .on("participant-updated", this.updateTrack)
-      .on("participant-left", this.updateTrack)
+      .on("participant-joined", this.updateParticpants)
+      .on("participant-updated", this.updateParticpants)
+      .on("participant-left", this.updateParticpants)
       .on("error", this.handleError)
       .on("nonfatal-error", (event) => {
         console.info("nonfatal-error", event);
@@ -117,8 +116,8 @@ export default {
       .on("camera-error", this.handleDeviceError)
       // app-message handles receiving remote chat messages
       .on("app-message", this.updateMessages)
-      .on("track-started", this.updateTrack)
-      .on("track-stopped", this.updateTrack);
+      .on("track-started", this.updateParticpants)
+      .on("track-stopped", this.updateParticpants);
   },
   unmounted() {
     if (!this.callObject) return;
@@ -162,7 +161,7 @@ export default {
       return mediaTracks;
     },
     updateTrack(e) {
-      console.log("[EVENT] ", e);
+      console.log("updateTrack [EVENT] ", e);
       const { participant } = e;
       if (!participant) return;
       const { videoTrack, audioTrack } = this.getParticipantTracks(participant);
@@ -180,7 +179,7 @@ export default {
         });
       } else {
         this.participants.push({
-          sessionId: participant.session_id,
+          session_id: participant.session_id,
           username: participant.user_name ?? "Guest",
           isLocal: participant.local,
           videoTrack,
@@ -198,15 +197,19 @@ export default {
      * to register only video/audio/screen track changes.
      */
     updateParticpants(e) {
+      // eslint-disable-next-line no-debugger
+      // debugger;
       console.log("[EVENT] ", e);
       if (!this.callObject) return;
+      const currentParticipants = Object.values(this.callObject.participants());
+      if (!currentParticipants) return;
 
-      const participants = this.callObject.participants();
-      this.count = Object.values(participants).length;
-      this.participants = participants.map((p) => {
+      console.log("currentParticipants", currentParticipants.length);
+      this.count = Object.values(currentParticipants).length;
+      this.participants = currentParticipants.map((p) => {
         const { videoTrack, audioTrack } = this.getParticipantTracks(p);
         return {
-          sessionId: p.session_id,
+          session_id: p.session_id,
           username: p.user_name ?? "Guest",
           isLocal: p.local,
           videoTrack,

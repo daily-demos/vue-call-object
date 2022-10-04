@@ -60,8 +60,11 @@ export default {
   methods: {
     // Add srcObject to video element
     handleVideo(track) {
+      if (!track) return;
       console.log("this.$refs.video.srcObject", this.$refs.video.srcObject);
-      this.refreshVideoTrack(this.$refs.video.srcObject, track);
+      const existingStream = this.$refs.video.srcObject;
+      const existingTracks = existingStream?.getVideoTracks() ?? [];
+      this.refreshTrack(existingStream, existingTracks, track);
     },
     // Add srcObject to audio element
     handleAudio(audioTrack) {
@@ -77,23 +80,16 @@ export default {
       const existingTracks = existingStream?.getAudioTracks() ?? [];
       this.refreshTrack(existingStream, existingTracks, newAudioTrack);
     },
-    refreshVideoTrack(existingStream, newVideoTrack) {
-      // If there is no new track, just early out
-      // and keep the old track on the stream as-is.
-      if (!newVideoTrack) return;
-      const existingTracks = existingStream?.getVideoTracks() ?? [];
-      this.refreshTrack(existingStream, existingTracks, newVideoTrack);
-    },
-    refreshTrack(existingStream, oldTracks, newTrack) {
+    refreshTrack(existingStream, oldTracks, newTrack = new MediaStreamTrack()) {
       if (!existingStream) {
         existingStream = new MediaStream();
-        this.$refs.video.srcObject = existingStream;
       }
       const trackCount = oldTracks.length;
       // If there is no matching old track,
       // just add the new track.
       if (trackCount === 0) {
         existingStream.addTrack(newTrack);
+        this.$refs.video.srcObject = existingStream;
         return;
       }
       if (trackCount > 1) {
@@ -109,6 +105,7 @@ export default {
         existingStream.addTrack(newTrack);
       }
 
+      this.$refs.video.srcObject = existingStream;
     },
   },
 };
