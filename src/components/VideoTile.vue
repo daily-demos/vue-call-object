@@ -14,26 +14,26 @@
     </template>
 
     <template v-if="participant.local">
-      <controls
-        :handleVideoClick="handleVideoClick"
-        :handleAudioClick="handleAudioClick"
-        :handleScreenshareClick="handleScreenshareClick"
+      <call-controls
+        :handle-video-click="handleVideoClick"
+        :handle-audio-click="handleAudioClick"
+        :handle-screenshare-click="handleScreenshareClick"
         :participant="participant"
-        :leaveCall="leaveCall"
-        :disableScreenShare="disableScreenShare"
+        :leave-call="leaveCall"
+        :disable-screen-share="disableScreenShare"
       />
     </template>
   </div>
 </template>
 
 <script>
-import Controls from "./Controls.vue";
+import CallControls from "./CallControls.vue";
 import NoVideoTile from "./NoVideoTile.vue";
 
 export default {
   name: "VideoTile",
   components: {
-    Controls,
+    CallControls,
     NoVideoTile,
   },
   props: [
@@ -104,7 +104,9 @@ export default {
         return new MediaStream([newTrack]);
       }
       if (existingTracks.length > 1) {
-        console.warn(`expected 1 track, found ${existingTracks.length}. Only using the first one.`);
+        console.warn(
+          `expected 1 track, found ${existingTracks.length}. Only using the first one.`
+        );
       }
       const existingTrack = existingTracks[0];
       // If existing track is different from the new track,
@@ -114,7 +116,7 @@ export default {
         stream.addTrack(newTrack);
       }
       return null;
-    }
+    },
   },
 };
 </script>

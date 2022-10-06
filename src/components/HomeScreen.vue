@@ -7,20 +7,18 @@
       <form class="join-form" @submit="joinWithName">
         <div class="name-container">
           <label for="name">Your name</label>
-          <input type="text" id="name" required v-model="name" />
+          <input id="name" v-model="name" type="text" required />
           <label for="name">Daily URL</label>
           <input
-            type="text"
             id="url"
+            v-model="url"
+            type="text"
             placeholder="https://your-daily-domain.daily.co/room-name"
             required
-            v-model="url"
           />
         </div>
         <div class="submit-container">
-          <button type="submit">
-            Start demo
-          </button>
+          <button type="submit">Start demo</button>
         </div>
       </form>
 
@@ -33,10 +31,11 @@
 
 <script>
 export default {
-  name: "Home",
+  name: "HomeScreen",
   props: {
     joinCall: {
       type: Function,
+      required: true,
     },
   },
   data() {

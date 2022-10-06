@@ -13,8 +13,12 @@
 
     <div class="chat-container">
       <div class="messages">
-        <p v-for="(chat, i) in messages" :key="i" class="chat-message">
-          <span class="chat-name">{{ chat?.name }}: </span>{{ chat?.message }}
+        <p
+          v-for="({ name = '', message = '' }, i) in messages"
+          :key="i"
+          class="chat-message"
+        >
+          <span class="chat-name">{{ name }}: </span>{{ message }}
         </p>
       </div>
 
@@ -23,10 +27,10 @@
           <label for="message">Type a message...</label>
           <textarea
             id="message"
-            type="text"
-            @keydown.enter="submitForm"
             v-model="text"
+            type="text"
             placeholder="Type a message..."
+            @keydown.enter="submitForm"
           />
         </div>
 
@@ -39,15 +43,19 @@
 </template>
 
 <script>
+import close from "../assets/x.svg";
+import chat from "../assets/chat.svg";
+import send from "../assets/send.svg";
+
 export default {
-  name: "Chat",
+  name: "ChatTile",
   props: ["sendMessage", "messages"],
   data() {
     return {
       chatIsOpen: false,
-      close: require("../assets/x.svg"),
-      chat: require("../assets/chat.svg"),
-      send: require("../assets/send.svg"),
+      close,
+      chat,
+      send,
       text: "",
     };
   },
@@ -56,7 +64,7 @@ export default {
     handleChatClick() {
       this.chatIsOpen = !this.chatIsOpen;
     },
-    // Send chat message using prop method from Call.vue
+    // Send chat message using prop method from CallTile.vue
     submitForm(e) {
       e.preventDefault();
 

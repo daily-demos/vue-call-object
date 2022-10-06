@@ -1,25 +1,25 @@
 <template>
   <app-header />
-  <home v-if="appState === 'idle'" :joinCall="joinCall" />
-  <call
+  <home-screen v-if="appState === 'idle'" :join-call="joinCall" />
+  <call-tile
     v-else-if="appState === 'incall'"
-    :leaveCall="leaveCall"
+    :leave-call="leaveCall"
     :name="name"
-    :roomUrl="roomUrl"
+    :room-url="roomUrl"
   />
 </template>
 
 <script>
-import Call from "./Call.vue";
+import CallTile from "./CallTile.vue";
 import AppHeader from "./AppHeader.vue";
-import Home from "./Home.vue";
+import HomeScreen from "./HomeScreen.vue";
 
 export default {
   name: "App",
   components: {
-    Call,
+    CallTile,
     AppHeader,
-    Home,
+    HomeScreen,
   },
   data() {
     return {

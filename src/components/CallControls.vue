@@ -20,7 +20,7 @@
       </button>
 
       <template v-if="supportsScreenshare">
-        <button @click="handleScreenshareClick" :disabled="disableScreenShare">
+        <button :disabled="disableScreenShare" @click="handleScreenshareClick">
           <img class="icon" :src="screenShare" alt="" />
         </button>
       </template>
@@ -35,8 +35,15 @@
 <script>
 import daily from "@daily-co/daily-js";
 
+import leave from "../assets/leave_call.svg";
+import micOff from "../assets/mic_off.svg";
+import micOn from "../assets/mic_on.svg";
+import screenShare from "../assets/screenshare.svg";
+import videoOff from "../assets/vid_off.svg";
+import videoOn from "../assets/vid_on.svg";
+
 export default {
-  name: "Controls",
+  name: "CallControls",
   props: [
     "participant",
     "handleVideoClick",
@@ -47,12 +54,12 @@ export default {
   ],
   data() {
     return {
-      leave: require("../assets/leave_call.svg"),
-      micOn: require("../assets/mic_on.svg"),
-      micOff: require("../assets/mic_off.svg"),
-      screenShare: require("../assets/screenshare.svg"),
-      videoOn: require("../assets/vid_on.svg"),
-      videoOff: require("../assets/vid_off.svg"),
+      leave,
+      micOn,
+      micOff,
+      screenShare,
+      videoOn,
+      videoOff,
       supportsScreenshare: false,
     };
   },
