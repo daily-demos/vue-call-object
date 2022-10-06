@@ -39,15 +39,19 @@
 </template>
 
 <script>
+import close from "../assets/x.svg";
+import chat from "../assets/chat.svg";
+import send from "../assets/send.svg";
+
 export default {
   name: "Chat",
   props: ["sendMessage", "messages"],
   data() {
     return {
       chatIsOpen: false,
-      close: require("../assets/x.svg"),
-      chat: require("../assets/chat.svg"),
-      send: require("../assets/send.svg"),
+      close,
+      chat,
+      send,
       text: "",
     };
   },

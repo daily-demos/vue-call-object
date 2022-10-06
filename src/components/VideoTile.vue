@@ -55,7 +55,7 @@ export default {
     // For later optimization, this can be done more selectively
     // using "track-started" and "track-stopped" events.
     // this.handleVideo(this.videoTrack);
-    this.handleAudio(this.audioTrack);
+    // this.handleAudio(this.audioTrack);
   },
   methods: {
     // Add srcObject to video element
