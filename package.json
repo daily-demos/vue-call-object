@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "npm run test && vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "lint": "eslint --ext .js,.vue,.ts --ignore-path .gitignore --fix src",
     "format": "prettier . --write",
     "test": "npm run lint"
   },
@@ -15,12 +15,16 @@
     "vue": "^3.2.40"
   },
   "devDependencies": {
+    "@typescript-eslint/parser": "^5.39.0",
     "@vitejs/plugin-vue": "^3.1.2",
+    "@vue/tsconfig": "^0.1.3",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-vue": "^8.7.1",
     "prettier": "2.7.1",
-    "vite": "^3.1.4"
+    "typescript": "^4.8.4",
+    "vite": "^3.1.4",
+    "vue-eslint-parser": "^9.1.0"
   },
   "eslintConfig": {
     "root": true,
@@ -32,6 +36,11 @@
       "plugin:vue/vue3-recommended",
       "prettier"
     ],
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+      "parser": "@typescript-eslint/parser",
+      "sourceType": "module"
+    },
     "rules": {
       "vue/require-prop-types": "off"
     }
