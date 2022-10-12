@@ -54,9 +54,13 @@ export default {
     this.handleVideo(this.participant);
     this.handleAudio(this.participant);
 
+    this.$refs.videoRef?.addEventListener("canplay", this.handleVideoCanPlay);
+    this.$refs.audioRef?.addEventListener("canplay", this.handleAudioCanPlay);
     navigator.mediaDevices.addEventListener("devicechange", this.playTracks);
   },
   unmounted() {
+    this.$refs.videoRef?.removeEventListener("canplay", this.handleVideoCanPlay);
+    this.$refs.audioRef?.removeEventListener("canplay", this.handleAudioCanPlay);
     navigator.mediaDevices.removeEventListener("devicechange", this.playTracks);
   },
   updated() {
@@ -67,9 +71,17 @@ export default {
     this.handleAudio(this.participant);
   },
   methods: {
-    playTracks () {
+    handleVideoCanPlay () {
+      if (!this.$refs.videoRef.paused) return;
       this.$refs.videoRef.play();
+    },
+    handleAudioCanPlay () {
+      if (!this.$refs.audioRef.paused) return;
       this.$refs.audioRef.play();
+    },
+    playTracks () {
+      this.handleVideoCanPlay();
+      this.handleAudioCanPlay();
     },
 
     // Add srcObject to video element
@@ -82,7 +94,7 @@ export default {
 
       const track = p?.tracks?.video?.persistentTrack;
       this.$refs.videoRef.srcObject = new MediaStream([track]);
-      this.$refs.videoRef.play();
+      this.$refs.videoRef.load();
     },
 
     // Add srcObject to audio element
@@ -94,7 +106,7 @@ export default {
 
       const track = p?.tracks?.audio?.persistentTrack;
       this.$refs.audioRef.srcObject = new MediaStream([track]);
-      this.$refs.audioRef.play();
+      this.$refs.audioRef.load();
     },
   },
 };
