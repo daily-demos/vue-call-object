@@ -1,11 +1,11 @@
 <template>
   <div class="tile">
-    <audio autoPlay playsInline :srcObject="audioSource">
+    <audio autoplay playsInline ref="audioRef">
       <track kind="captions" />
     </audio>
 
     <template v-if="participant.video">
-      <video autoPlay muted playsInline :srcObject="videoSource"></video>
+      <video autoplay muted playsInline ref="videoRef"></video>
       <p class="participant-name">{{ username }}</p>
     </template>
 
@@ -46,8 +46,6 @@ export default {
   ],
   data() {
     return {
-      videoSource: null,
-      audioSource: null,
       username: "Guest",
     };
   },
@@ -55,6 +53,15 @@ export default {
     this.username = this.participant?.user_name;
     this.handleVideo(this.participant);
     this.handleAudio(this.participant);
+
+    this.$refs.videoRef?.addEventListener("canplay", this.handleVideoCanPlay);
+    this.$refs.audioRef?.addEventListener("canplay", this.handleAudioCanPlay);
+    navigator.mediaDevices.addEventListener("devicechange", this.playTracks);
+  },
+  unmounted() {
+    this.$refs.videoRef?.removeEventListener("canplay", this.handleVideoCanPlay);
+    this.$refs.audioRef?.removeEventListener("canplay", this.handleAudioCanPlay);
+    navigator.mediaDevices.removeEventListener("devicechange", this.playTracks);
   },
   updated() {
     this.username = this.participant?.user_name;
@@ -64,6 +71,27 @@ export default {
     this.handleAudio(this.participant);
   },
   methods: {
+    handleVideoCanPlay () {
+      if (!this.$refs.videoRef.paused) return;
+      this.$refs.videoRef.play().catch((e) => {
+        if (e instanceof DOMException && e.name === 'NotAllowedError') {
+          console.error("Autoplay failed", e);
+        } else console.error("Error playing video", e);
+      });
+    },
+    handleAudioCanPlay () {
+      if (!this.$refs.audioRef.paused) return;
+      this.$refs.audioRef.play().catch((e) => {
+        if (e instanceof DOMException && e.name === 'NotAllowedError') {
+          console.error("Autoplay failed", e);
+        } else console.error("Error playing audio: ", e);
+      });
+    },
+    playTracks () {
+      this.handleVideoCanPlay();
+      this.handleAudioCanPlay();
+    },
+
     // Add srcObject to video element
     handleVideo() {
       const p = this.participant;
@@ -72,10 +100,12 @@ export default {
       // early out.
       if (!p?.video) return;
 
-      const track = p.tracks.video.persistentTrack;
-      const newStream = this.updateSource(this.videoSource, track);
-      if (newStream) {
-        this.videoSource = newStream;
+      try {
+        const track = p?.tracks?.video?.persistentTrack;
+        this.$refs.videoRef.srcObject = new MediaStream([track]);
+        this.$refs.videoRef.load();
+      } catch (e) {
+        console.error('show up a modal to get user gesture', e);
       }
     },
 
@@ -86,36 +116,12 @@ export default {
       // early out.
       if (!p || p.local || !p.audio) return;
 
-      const track = p.tracks.audio.persistentTrack;
-      const newStream = this.updateSource(this.audioSource, track);
-      if (newStream) {
-        this.audioSource = newStream;
+      try {
+        const track = p?.tracks?.audio?.persistentTrack;
+        this.$refs.audioRef.srcObject = new MediaStream([track]);
+      } catch (e) {
+        console.error('show up a modal to get user gesture', e);
       }
-    },
-
-    // updateSource() updates the given stream with new tracks OR
-    // returns an entirely new stream to the caller.
-    updateSource(stream, newTrack) {
-      const existingTracks = stream?.getTracks();
-      // If the stream parameter contains no existing tracks,
-      // just return a new MediaStream to set. This should
-      // only happen the first time the tile is initialized.
-      if (!existingTracks || existingTracks.length === 0) {
-        return new MediaStream([newTrack]);
-      }
-      if (existingTracks.length > 1) {
-        console.warn(
-          `expected 1 track, found ${existingTracks.length}. Only using the first one.`
-        );
-      }
-      const existingTrack = existingTracks[0];
-      // If existing track is different from the new track,
-      // remove the existing track and add the new one.
-      if (newTrack.id !== existingTrack.id) {
-        stream.removeTrack(existingTrack);
-        stream.addTrack(newTrack);
-      }
-      return null;
     },
   },
 };
@@ -131,6 +137,10 @@ export default {
 video {
   width: 100%;
   border-radius: 16px;
+}
+audio {
+  position: absolute;
+  visibility: hidden;
 }
 .participant-name {
   position: absolute;
