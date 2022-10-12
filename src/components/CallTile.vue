@@ -86,6 +86,9 @@ export default {
   mounted() {
     const option = {
       url: this.roomUrl,
+      dailyConfig: {
+        experimentalChromeVideoMuteLightOff: true,
+      }
     };
 
     // Create instance of Daily call object

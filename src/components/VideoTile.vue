@@ -1,11 +1,11 @@
 <template>
   <div class="tile">
-    <audio autoPlay playsInline ref="audioRef">
+    <audio autoplay playsInline ref="audioRef">
       <track kind="captions" />
     </audio>
 
     <template v-if="participant.video">
-      <video autoPlay muted playsInline ref="videoRef"></video>
+      <video autoplay muted playsInline ref="videoRef"></video>
       <p class="participant-name">{{ username }}</p>
     </template>
 
@@ -73,11 +73,19 @@ export default {
   methods: {
     handleVideoCanPlay () {
       if (!this.$refs.videoRef.paused) return;
-      this.$refs.videoRef.play();
+      this.$refs.videoRef.play().catch((e) => {
+        if (e instanceof DOMException && e.name === 'NotAllowedError') {
+          console.error("Autoplay failed", e);
+        } else console.error("Error playing video", e);
+      });
     },
     handleAudioCanPlay () {
       if (!this.$refs.audioRef.paused) return;
-      this.$refs.audioRef.play();
+      this.$refs.audioRef.play().catch((e) => {
+        if (e instanceof DOMException && e.name === 'NotAllowedError') {
+          console.error("Autoplay failed", e);
+        } else console.error("Error playing audio: ", e);
+      });
     },
     playTracks () {
       this.handleVideoCanPlay();
@@ -92,9 +100,13 @@ export default {
       // early out.
       if (!p?.video) return;
 
-      const track = p?.tracks?.video?.persistentTrack;
-      this.$refs.videoRef.srcObject = new MediaStream([track]);
-      this.$refs.videoRef.load();
+      try {
+        const track = p?.tracks?.video?.persistentTrack;
+        this.$refs.videoRef.srcObject = new MediaStream([track]);
+        this.$refs.videoRef.load();
+      } catch (e) {
+        console.error('show up a modal to get user gesture', e);
+      }
     },
 
     // Add srcObject to audio element
@@ -104,9 +116,12 @@ export default {
       // early out.
       if (!p || p.local || !p.audio) return;
 
-      const track = p?.tracks?.audio?.persistentTrack;
-      this.$refs.audioRef.srcObject = new MediaStream([track]);
-      this.$refs.audioRef.load();
+      try {
+        const track = p?.tracks?.audio?.persistentTrack;
+        this.$refs.audioRef.srcObject = new MediaStream([track]);
+      } catch (e) {
+        console.error('show up a modal to get user gesture', e);
+      }
     },
   },
 };
@@ -122,6 +137,10 @@ export default {
 video {
   width: 100%;
   border-radius: 16px;
+}
+audio {
+  position: absolute;
+  visibility: hidden;
 }
 .participant-name {
   position: absolute;
