@@ -1,3 +1,6 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json"
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "compilerOptions": {
+    "lib": ["ES2017"]
+  }
 }
