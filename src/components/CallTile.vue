@@ -26,16 +26,7 @@
             </template>
 
             <div v-if="participants" class="participants-container">
-              <template v-for="p in participants" :key="p.session_id">
-                <video-tile
-                  :participant="p"
-                  :handle-video-click="handleVideoClick"
-                  :handle-audio-click="handleAudioClick"
-                  :handle-screenshare-click="handleScreenshareClick"
-                  :leave-call="leaveAndCleanUp"
-                  :disable-screen-share="screen && !screen?.local"
-                />
-              </template>
+              <div id="video-call"></div>
 
               <template v-if="count === 1">
                 <waiting-card :url="roomUrl" />
@@ -50,8 +41,13 @@
   </main>
 </template>
 
-<script>
-import daily from "@daily-co/daily-js";
+<script lang="ts">
+import { defineComponent } from "vue";
+
+import daily, {
+  type DailyCall,
+  type DailyParticipant,
+} from "@daily-co/daily-js";
 
 import WaitingCard from "./WaitingCard.vue";
 import ChatTile from "./ChatTile.vue";
@@ -60,7 +56,33 @@ import ScreenshareTile from "./ScreenshareTile.vue";
 import LoadingTile from "./LoadingTile.vue";
 import PermissionsErrorMsg from "./PermissionsErrorMsg.vue";
 
-export default {
+interface Participant {
+  session_id: string;
+  user_id: string;
+  user_name: string;
+  local: boolean;
+  video: boolean;
+  audio: boolean;
+  screen: boolean;
+}
+
+interface CallTileData {
+  callObject: null | DailyCall;
+  loading: boolean;
+  error: boolean;
+  showPermissionsError: boolean;
+  participants: Participant[];
+  screen: unknown; // video track
+  messages: string[];
+  count: number;
+}
+
+type Tracks = {
+  videoTrack: MediaStreamTrack | null;
+  audioTrack: MediaStreamTrack | null;
+};
+
+export default defineComponent({
   name: "CallTile",
   components: {
     VideoTile,
@@ -70,11 +92,24 @@ export default {
     LoadingTile,
     PermissionsErrorMsg,
   },
-  props: ["leaveCall", "name", "roomUrl"],
-  data() {
+  props: {
+    leaveCall: {
+      type: Function,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    roomUrl: {
+      type: String,
+      required: true,
+    },
+  },
+  data(): CallTileData {
     return {
       callObject: null,
-      participants: null,
+      participants: [],
       count: 0,
       messages: [],
       error: false,
@@ -98,31 +133,219 @@ export default {
 
     // Add call and participant event handler
     // Visit https://docs.daily.co/reference/daily-js/events for more event info
-    co.on("joining-meeting", this.handleJoiningMeeting)
-      .on("joined-meeting", this.updateParticpants)
-      .on("participant-joined", this.updateParticpants)
-      .on("participant-updated", this.updateParticpants)
-      .on("participant-left", this.updateParticpants)
+    co
+      // .on("joining-meeting", this.handleJoiningMeeting)
+      // .on("joined-meeting", this.updateParticpants)
+      // .on("participant-joined", this.updateParticpants)
+      // .on("participant-updated", this.updateParticpants)
+      // .on("participant-left", this.updateParticpants)
       .on("error", this.handleError)
       // camera-error = device permissions issue
       .on("camera-error", this.handleDeviceError)
       // app-message handles receiving remote chat messages
-      .on("app-message", this.updateMessages);
+      .on("app-message", this.updateMessages)
+      .on("track-started", (p) => {
+        if (!p?.participant) return;
+        const tracks = this.getParticipantTracks(p.participant);
+        try {
+          this.updateMedia(p.participant.session_id, tracks);
+        } catch (e) {
+          console.warn(e);
+        }
+      })
+      .on("track-stopped", (p) => {
+        if (!p?.participant) return;
+        const tracks = this.getParticipantTracks(p.participant);
+        try {
+          this.updateMedia(p.participant.session_id, tracks);
+        } catch (e) {
+          console.warn(e);
+        }
+      });
   },
   unmounted() {
     if (!this.callObject) return;
     // Clean-up event handlers
     this.callObject
-      .off("joining-meeting", this.handleJoiningMeeting)
-      .off("joined-meeting", this.updateParticpants)
-      .off("participant-joined", this.updateParticpants)
-      .off("participant-updated", this.updateParticpants)
-      .off("participant-left", this.updateParticpants)
+      // .off("joining-meeting", this.handleJoiningMeeting)
+      // .off("joined-meeting", this.updateParticpants)
+      // .off("participant-joined", this.updateParticpants)
+      // .off("participant-updated", this.updateParticpants)
+      // .off("participant-left", this.updateParticpants)
       .off("error", this.handleError)
       .off("camera-error", this.handleDeviceError)
-      .off("app-message", this.updateMessages);
+      .off("app-message", this.updateMessages)
+      .off("track-started", (p) => {
+        if (!p?.participant) return;
+        const tracks = this.getParticipantTracks(p.participant);
+        try {
+          this.updateMedia(p.participant.session_id, tracks);
+        } catch (e) {
+          console.warn(e);
+        }
+      })
+      .off("track-stopped", (p) => {
+        if (!p?.participant) return;
+        const tracks = this.getParticipantTracks(p.participant);
+        try {
+          this.updateMedia(p.participant.session_id, tracks);
+        } catch (e) {
+          console.warn(e);
+        }
+      });
   },
   methods: {
+    updateMedia(participantID: string, newTracks: Tracks) {
+      // Get the video tag.
+      let videoTile = document.getElementById(
+        participantID
+      ) as HTMLVideoElement | null;
+      if (!videoTile) {
+        const videoCall = document.getElementById(
+          "video-call"
+        ) as HTMLDivElement;
+        const newVideoTile = document.createElement("video");
+        newVideoTile.id = participantID;
+        videoCall.appendChild(newVideoTile);
+        videoTile = newVideoTile;
+      }
+
+      const video = videoTile;
+
+      // Get existing MediaStream from the video tag source object.
+      const existingStream = video.srcObject as MediaStream;
+
+      const newVideo = newTracks.videoTrack;
+      const newAudio = newTracks.audioTrack;
+
+      // If there is no existing stream or it contains no tracks,
+      // Just create a new media stream using our new tracks.
+      // This will happen if this is the first time we're
+      // setting the tracks.
+      if (!existingStream || existingStream.getTracks().length === 0) {
+        const tracks: MediaStreamTrack[] = [];
+        if (newVideo) tracks.push(newVideo);
+        if (newAudio) tracks.push(newAudio);
+        const newStream = new MediaStream(tracks);
+        video.srcObject = newStream;
+        video.playsInline = true;
+        video.autoplay = true;
+        video.muted = true;
+        this.playMedia(video);
+        return;
+      }
+
+      // This boolean will define whether we play the video element again
+      // This should be `true` if any of the tracks have changed.
+      let needsPlay = false;
+      needsPlay = this.refreshAudioTrack(existingStream, newAudio);
+
+      // We have an extra if check here compared to the audio track
+      // handling above, because the video track also dictates
+      // whether we should hide the video DOM element.
+      if (newVideo) {
+        if (this.refreshVideoTrack(existingStream, newVideo) && !needsPlay) {
+          needsPlay = true;
+        }
+
+        video.classList.remove("hidden");
+      } else {
+        // If there's no video to be played, hide the element.
+        video.classList.add("hidden");
+      }
+      if (needsPlay) {
+        this.playMedia(video);
+      }
+    },
+    refreshAudioTrack(
+      existingStream: MediaStream,
+      newAudioTrack: MediaStreamTrack | null
+    ): boolean {
+      // If there is no new track, just early out
+      // and keep the old track on the stream as-is.
+      if (!newAudioTrack) return false;
+      const existingTracks = existingStream.getAudioTracks();
+      return this.refreshTrack(existingStream, existingTracks, newAudioTrack);
+    },
+    refreshVideoTrack(
+      existingStream: MediaStream,
+      newVideoTrack: MediaStreamTrack | null
+    ): boolean {
+      // If there is no new track, just early out
+      // and keep the old track on the stream as-is.
+      if (!newVideoTrack) return false;
+      const existingTracks = existingStream.getVideoTracks();
+      return this.refreshTrack(existingStream, existingTracks, newVideoTrack);
+    },
+    refreshTrack(
+      existingStream: MediaStream,
+      oldTracks: MediaStreamTrack[],
+      newTrack: MediaStreamTrack
+    ): boolean {
+      const trackCount = oldTracks.length;
+      // If there is no matching old track,
+      // just add the new track.
+      if (trackCount === 0) {
+        existingStream.addTrack(newTrack);
+        return true;
+      }
+      if (trackCount > 1) {
+        console.warn(
+          `expected up to 1 media track, but got ${trackCount}. Only using the first one.`
+        );
+      }
+      const oldTrack = oldTracks[0];
+      // If the IDs of the old and new track don't match,
+      // replace the old track with the new one.
+      if (oldTrack.id !== newTrack.id) {
+        existingStream.removeTrack(oldTrack);
+        existingStream.addTrack(newTrack);
+        return true;
+      }
+      return false;
+    },
+    playMedia(video: HTMLVideoElement) {
+      const isPlaying =
+        !video.paused &&
+        !video.ended &&
+        video.currentTime > 0 &&
+        video.readyState > video.HAVE_CURRENT_DATA;
+
+      if (isPlaying) return;
+
+      video.play().catch((e) => {
+        if (e instanceof Error && e.name === "NotAllowedError") {
+          throw new Error("Autoplay error");
+        }
+
+        console.warn("Failed to play media.", e);
+      });
+    },
+    getParticipantTracks(p: DailyParticipant) {
+      const mediaTracks: Tracks = {
+        videoTrack: null,
+        audioTrack: null,
+      };
+
+      const tracks = p?.tracks;
+      if (!tracks) return mediaTracks;
+
+      const vt = tracks.video;
+      const vs = vt?.state;
+      if (vt.persistentTrack && !(vs === "off" || vs === "blocked")) {
+        mediaTracks.videoTrack = vt.persistentTrack;
+      }
+
+      // Only get audio track if this is a remote participant
+      if (!p.local) {
+        const at = tracks.audio;
+        const as = at?.state;
+        if (at.persistentTrack && !(as === "off" || as === "blocked")) {
+          mediaTracks.audioTrack = at.persistentTrack;
+        }
+      }
+      return mediaTracks;
+    },
     /**
      * This is called any time a participant update registers.
      * In large calls, this should be optimized to avoid re-renders.
@@ -163,13 +386,13 @@ export default {
     },
     // Toggle local microphone in use (on/off)
     handleAudioClick() {
-      const audioOn = this.callObject.localAudio();
-      this.callObject.setLocalAudio(!audioOn);
+      const audioOn = this.callObject?.localAudio();
+      this.callObject?.setLocalAudio(!audioOn);
     },
     // Toggle local camera in use (on/off)
     handleVideoClick() {
-      const videoOn = this.callObject.localVideo();
-      this.callObject.setLocalVideo(!videoOn);
+      const videoOn = this.callObject?.localVideo();
+      this.callObject?.setLocalVideo(!videoOn);
     },
     // Show permissions error in UI to alert local participant
     handleDeviceError() {
@@ -178,10 +401,10 @@ export default {
     // Toggle screen share
     handleScreenshareClick() {
       if (this.screen?.local) {
-        this.callObject.stopScreenShare();
+        this.callObject?.stopScreenShare();
         this.screen = null;
       } else {
-        this.callObject.startScreenShare();
+        this.callObject?.startScreenShare();
       }
     },
     /**
@@ -192,7 +415,7 @@ export default {
      */
     sendMessage(text) {
       // Attach the local participant's username to the message to be displayed in ChatTile.vue
-      const local = this.callObject.participants().local;
+      const local = this.callObject?.participants().local;
       const message = { message: text, name: local?.user_name || "Guest" };
       this.messages.push(message);
       this.callObject.sendAppMessage(message, "*");
@@ -211,7 +434,7 @@ export default {
       });
     },
   },
-};
+});
 </script>
 
 <style scoped>
