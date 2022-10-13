@@ -33,13 +33,17 @@
 </template>
 
 <script>
+import github from "../assets/github.svg";
+import daily from "../assets/daily.svg";
+import newtab from "../assets/newtab.svg";
+
 export default {
   name: "AppHeader",
   data() {
     return {
-      github: require("../assets/github.svg"),
-      daily: require("../assets/daily.svg"),
-      newtab: require("../assets/newtab.svg"),
+      github,
+      daily,
+      newtab,
     };
   },
 };

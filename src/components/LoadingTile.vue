@@ -51,7 +51,7 @@
 
 <script>
 export default {
-  name: "Loading",
+  name: "LoadingTile",
 };
 </script>
 

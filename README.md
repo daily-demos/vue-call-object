@@ -14,7 +14,7 @@ Clone this repo and, from the project directory, run:
 
 ```bash
 npm install
-npm run serve
+npm run dev
 ```
 
 Open http://localhost:8080 to view it in the browser.

@@ -2,7 +2,7 @@
   <main>
     <!-- loading is true when the call is in the "joining-meeting" meeting state -->
     <template v-if="loading">
-      <div class="loading-spinner"><loading /></div>
+      <div class="loading-spinner"><loading-tile /></div>
     </template>
 
     <template v-else>
@@ -10,9 +10,7 @@
         <template v-if="error">
           <p class="error-text">{{ error }}</p>
           <!-- refreshing will leave the call and reset the app state -->
-          <button class="error-button " @click="leaveAndCleanUp">
-            Refresh
-          </button>
+          <button class="error-button" @click="leaveAndCleanUp">Refresh</button>
         </template>
 
         <template v-if="showPermissionsError">
@@ -27,15 +25,15 @@
               <screenshare-tile :participant="screen" />
             </template>
 
-            <div class="participants-container" v-if="participants">
+            <div v-if="participants" class="participants-container">
               <template v-for="p in participants" :key="p.session_id">
                 <video-tile
                   :participant="p"
-                  :handleVideoClick="handleVideoClick"
-                  :handleAudioClick="handleAudioClick"
-                  :handleScreenshareClick="handleScreenshareClick"
-                  :leaveCall="leaveAndCleanUp"
-                  :disableScreenShare="screen && !screen?.local"
+                  :handle-video-click="handleVideoClick"
+                  :handle-audio-click="handleAudioClick"
+                  :handle-screenshare-click="handleScreenshareClick"
+                  :leave-call="leaveAndCleanUp"
+                  :disable-screen-share="screen && !screen?.local"
                 />
               </template>
 
@@ -46,7 +44,7 @@
           </div>
         </template>
 
-        <chat :sendMessage="sendMessage" :messages="messages" />
+        <chat-tile :send-message="sendMessage" :messages="messages" />
       </div>
     </template>
   </main>
@@ -56,20 +54,20 @@
 import daily from "@daily-co/daily-js";
 
 import WaitingCard from "./WaitingCard.vue";
-import Chat from "./Chat.vue";
+import ChatTile from "./ChatTile.vue";
 import VideoTile from "./VideoTile.vue";
 import ScreenshareTile from "./ScreenshareTile.vue";
-import Loading from "./Loading.vue";
+import LoadingTile from "./LoadingTile.vue";
 import PermissionsErrorMsg from "./PermissionsErrorMsg.vue";
 
 export default {
-  name: "Call",
+  name: "CallTile",
   components: {
     VideoTile,
     WaitingCard,
-    Chat,
+    ChatTile,
     ScreenshareTile,
-    Loading,
+    LoadingTile,
     PermissionsErrorMsg,
   },
   props: ["leaveCall", "name", "roomUrl"],
@@ -193,7 +191,7 @@ export default {
      * own messages.
      */
     sendMessage(text) {
-      // Attach the local participant's username to the message to be displayed in Chat.vue
+      // Attach the local participant's username to the message to be displayed in ChatTile.vue
       const local = this.callObject.participants().local;
       const message = { message: text, name: local?.user_name || "Guest" };
       this.messages.push(message);
