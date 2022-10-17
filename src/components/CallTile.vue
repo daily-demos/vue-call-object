@@ -46,12 +46,14 @@ import { defineComponent } from "vue";
 
 import daily, {
   type DailyCall,
+  type DailyEventObjectAppMessage,
+  type DailyEventObjectFatalError,
   type DailyParticipant,
 } from "@daily-co/daily-js";
 
 import WaitingCard from "./WaitingCard.vue";
 import ChatTile from "./ChatTile.vue";
-import VideoTile from "./VideoTile.vue";
+// import VideoTile from "./VideoTile.vue";
 import ScreenshareTile from "./ScreenshareTile.vue";
 import LoadingTile from "./LoadingTile.vue";
 import PermissionsErrorMsg from "./PermissionsErrorMsg.vue";
@@ -66,14 +68,19 @@ interface Participant {
   screen: boolean;
 }
 
+interface Message {
+  name: string;
+  message: string;
+}
+
 interface CallTileData {
   callObject: null | DailyCall;
   loading: boolean;
-  error: boolean;
+  error: string;
   showPermissionsError: boolean;
   participants: Participant[];
   screen: unknown; // video track
-  messages: string[];
+  messages: Message[];
   count: number;
 }
 
@@ -85,7 +92,7 @@ type Tracks = {
 export default defineComponent({
   name: "CallTile",
   components: {
-    VideoTile,
+    // VideoTile,
     WaitingCard,
     ChatTile,
     ScreenshareTile,
@@ -112,7 +119,7 @@ export default defineComponent({
       participants: [],
       count: 0,
       messages: [],
-      error: false,
+      error: '',
       loading: false,
       showPermissionsError: false,
       screen: null,
@@ -360,7 +367,7 @@ export default defineComponent({
       this.count = Object.values(p).length;
       this.participants = Object.values(p);
 
-      const screen = this.participants.filter((p) => p.screenVideoTrack);
+      const screen = this.participants.filter((pa) => pa.screenVideoTrack);
       if (screen?.length && !this.screen) {
         console.log("[SCREEN]", screen);
         this.screen = screen[0];
@@ -370,14 +377,16 @@ export default defineComponent({
       this.loading = false;
     },
     // Add chat message to local message array
-    updateMessages(e) {
+    updateMessages(e: DailyEventObjectAppMessage<any> | undefined) {
+      if (!e) return;
       console.log("[MESSAGE] ", e.data);
       this.messages.push(e?.data);
     },
     // Show local error in UI when daily-js reports an error
-    handleError(e) {
+    handleError(e: DailyEventObjectFatalError | undefined) {
+      if (!e) return;
       console.log("[ERROR] ", e);
-      this.error = e?.errorMsg;
+      this.error = e.errorMsg;
       this.loading = false;
     },
     // Temporary show loading view while joining the call
@@ -413,20 +422,22 @@ export default defineComponent({
      * because they do no receive an app-message Daily event for their
      * own messages.
      */
-    sendMessage(text) {
+    sendMessage(text: string) {
+      if (!this.callObject) return;
       // Attach the local participant's username to the message to be displayed in ChatTile.vue
-      const local = this.callObject?.participants().local;
+      const local = this.callObject.participants().local;
       const message = { message: text, name: local?.user_name || "Guest" };
       this.messages.push(message);
       this.callObject.sendAppMessage(message, "*");
     },
     // leave call, destroy call object, and reset local state values
     leaveAndCleanUp() {
+      if (!this.callObject) return;
       if (this.screen?.local) {
         this.callObject.stopScreenShare();
       }
       this.callObject.leave().then(() => {
-        this.callObject.destroy();
+        this.callObject?.destroy();
 
         this.participantWithScreenshare = null;
         this.screen = null;
@@ -491,5 +502,9 @@ p {
   border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
+}
+
+#video-call {
+  min-width: 50%;
 }
 </style>
