@@ -31,7 +31,15 @@
 import CallControls from "./CallControls.vue";
 import NoVideoTile from "./NoVideoTile.vue";
 
-export default {
+import { defineComponent } from "vue";
+
+interface VideoTileData {
+  audioSource: MediaStream | null;
+  videoSource: MediaStream | null;
+  username: string;
+}
+
+export default defineComponent({
   name: "VideoTile",
   components: {
     CallControls,
@@ -50,7 +58,7 @@ export default {
     "leaveCall",
     "disableScreenShare",
   ],
-  data() {
+  data(): VideoTileData {
     return {
       videoSource: null,
       audioSource: null,
@@ -58,21 +66,13 @@ export default {
     };
   },
   mounted() {
-    console.log("mounmted participant", this.participant);
+    console.log("mounmted participant", );
     this.handleVideo(this.videoTrack);
-    // this.handleAudio(this.audioTrack);
-  },
-  updated() {
-    // this.username = this.participant?.user_name;
-    // // For later optimization, this can be done more selectively
-    // // using "track-started" and "track-stopped" events.
-    // this.handleVideo(this.participant.videoTrack);
-    // this.handleAudio(this.participant);
+    this.handleAudio(this.audioTrack, this.local);
   },
   methods: {
     // Add srcObject to video element
     handleVideo(videoTrack) {
-      console.log("handleVideo", videoTrack);
 
       // If the participant has their video off,
       // early out.
@@ -85,14 +85,14 @@ export default {
     },
 
     // Add srcObject to audio element
-    handleAudio() {
-      const p = this.participant;
+    handleAudio(audioTrack, local) {
+      console.log("handleAudio", audioTrack, local);
+
       // If the participant is local or has their audio off,
       // early out.
-      if (!p || p.local || !p.audio) return;
+      if (local || !audioTrack) return;
 
-      const track = p.tracks.audio.persistentTrack;
-      const newStream = this.updateSource(this.audioSource, track);
+      const newStream = this.updateSource(this.audioSource, audioTrack);
       if (newStream) {
         this.audioSource = newStream;
       }
@@ -123,7 +123,7 @@ export default {
       return null;
     },
   },
-};
+});
 </script>
 
 <style scoped>
