@@ -26,7 +26,22 @@
             </template>
 
             <div v-if="participants" class="participants-container">
-              <div id="video-call"></div>
+              <template v-for="p in participants" :key="p.session_id">
+                <video-tile
+                  :audio-track="p.audioTrack"
+                  :local="p.local"
+                  :screen="p.screen"
+                  :session_id="p.session_id"
+                  :user_name="p.user_name"
+                  :video-track="p.videoTrack"
+
+                  :handle-video-click="handleVideoClick"
+                  :handle-audio-click="handleAudioClick"
+                  :handle-screenshare-click="handleScreenshareClick"
+                  :leave-call="leaveAndCleanUp"
+                  :disable-screen-share="screen && !screen?.local"
+                />
+              </template>
 
               <template v-if="count === 1">
                 <waiting-card :url="roomUrl" />
@@ -53,19 +68,18 @@ import daily, {
 
 import WaitingCard from "./WaitingCard.vue";
 import ChatTile from "./ChatTile.vue";
-// import VideoTile from "./VideoTile.vue";
+import VideoTile from "./VideoTile.vue";
 import ScreenshareTile from "./ScreenshareTile.vue";
 import LoadingTile from "./LoadingTile.vue";
 import PermissionsErrorMsg from "./PermissionsErrorMsg.vue";
 
 interface Participant {
-  session_id: string;
-  user_id: string;
-  user_name: string;
+  audioTrack: MediaStreamTrack | null;
   local: boolean;
-  video: boolean;
-  audio: boolean;
   screen: boolean;
+  session_id: string;
+  user_name: string;
+  videoTrack: MediaStreamTrack | null;
 }
 
 interface Message {
@@ -92,7 +106,7 @@ type Tracks = {
 export default defineComponent({
   name: "CallTile",
   components: {
-    // VideoTile,
+    VideoTile,
     WaitingCard,
     ChatTile,
     ScreenshareTile,
@@ -119,7 +133,7 @@ export default defineComponent({
       participants: [],
       count: 0,
       messages: [],
-      error: '',
+      error: "",
       loading: false,
       showPermissionsError: false,
       screen: null,
@@ -153,18 +167,33 @@ export default defineComponent({
       .on("app-message", this.updateMessages)
       .on("track-started", (p) => {
         if (!p?.participant) return;
-        const tracks = this.getParticipantTracks(p.participant);
+        const {session_id, local, user_name} = p.participant;
+        const { audioTrack, videoTrack } = this.getParticipantTracks(
+          p.participant
+        );
         try {
-          this.updateMedia(p.participant.session_id, tracks);
+          this.updateMedia2(session_id, user_name, local, audioTrack, videoTrack);
         } catch (e) {
           console.warn(e);
         }
       })
+      // .on("track-started", (p) => {
+      //   if (!p?.participant) return;
+      //   const tracks = this.getParticipantTracks(p.participant);
+      //   try {
+      //     this.updateMedia(p.participant.session_id, tracks);
+      //   } catch (e) {
+      //     console.warn(e);
+      //   }
+      // })
       .on("track-stopped", (p) => {
         if (!p?.participant) return;
-        const tracks = this.getParticipantTracks(p.participant);
+        const {session_id, local, user_name} = p.participant;
+        const { audioTrack, videoTrack } = this.getParticipantTracks(
+          p.participant
+        );
         try {
-          this.updateMedia(p.participant.session_id, tracks);
+          this.updateMedia2(session_id, user_name, local, audioTrack, videoTrack);
         } catch (e) {
           console.warn(e);
         }
@@ -202,6 +231,46 @@ export default defineComponent({
       });
   },
   methods: {
+    updateMedia2(
+      sessionId: string,
+      userName: string,
+      local: boolean,
+      audio: MediaStreamTrack | null,
+      video: MediaStreamTrack | null
+    ) {
+      const participant = this.participants.find(
+        (p) => p.session_id === sessionId
+      );
+
+      if (!participant) {
+        this.participants.push({
+          session_id: sessionId,
+          user_name: userName,
+          local,
+          audioTrack: audio,
+          videoTrack: video,
+          screen: false,
+        });
+        return;
+      }
+
+      this.participants = this.participants.map((p) => {
+        console.log("p:", p);
+        if (p.session_id === sessionId) {
+          return {
+            audioTrack: audio,
+            local,
+            screen: false, // TODO(jamsea): should be a track
+            session_id: sessionId,
+            user_name: userName,
+            videoTrack: video,
+          };
+        }
+        return p;
+      });
+
+      console.log("this.participants", this.participants);
+    },
     updateMedia(participantID: string, newTracks: Tracks) {
       // Get the video tag.
       let videoTile = document.getElementById(

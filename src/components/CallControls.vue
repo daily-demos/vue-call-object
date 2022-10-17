@@ -2,7 +2,7 @@
   <div class="controls">
     <div class="devices">
       <button @click="handleAudioClick">
-        <template v-if="participant.audio">
+        <template v-if="audio">
           <img class="icon" :src="micOn" alt="" />
         </template>
         <template v-else>
@@ -11,7 +11,7 @@
       </button>
 
       <button @click="handleVideoClick">
-        <template v-if="participant.video">
+        <template v-if="video">
           <img class="icon" :src="videoOn" alt="" />
         </template>
         <template v-else>
@@ -45,7 +45,8 @@ import videoOn from "../assets/vid_on.svg";
 export default {
   name: "CallControls",
   props: [
-    "participant",
+    "audio",
+    "video",
     "handleVideoClick",
     "handleAudioClick",
     "handleScreenshareClick",
