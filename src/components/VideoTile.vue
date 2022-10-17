@@ -4,7 +4,7 @@
       <track kind="captions" />
     </audio>
 
-    <template v-if="participant.video">
+    <template v-if="videoTrack">
       <video autoPlay muted playsInline :srcObject="videoSource"></video>
       <p class="participant-name">{{ username }}</p>
     </template>
@@ -13,38 +13,52 @@
       <no-video-tile :username="username"></no-video-tile>
     </template>
 
-    <template v-if="participant.local">
+    <template v-if="local">
       <call-controls
-        :handle-video-click="handleVideoClick"
+        :audio="audioTrack"
+        :disable-screen-share="disableScreenShare"
         :handle-audio-click="handleAudioClick"
         :handle-screenshare-click="handleScreenshareClick"
-        :participant="participant"
+        :handle-video-click="handleVideoClick"
         :leave-call="leaveCall"
-        :disable-screen-share="disableScreenShare"
+        :video="videoTrack"
       />
     </template>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import CallControls from "./CallControls.vue";
 import NoVideoTile from "./NoVideoTile.vue";
 
-export default {
+import { defineComponent } from "vue";
+
+interface VideoTileData {
+  audioSource: MediaStream | null;
+  videoSource: MediaStream | null;
+  username: string;
+}
+
+export default defineComponent({
   name: "VideoTile",
   components: {
     CallControls,
     NoVideoTile,
   },
   props: [
-    "participant",
+    "audioTrack",
+    "local",
+    "screen",
+    "sessionId",
+    "userName",
+    "videoTrack",
     "handleVideoClick",
     "handleAudioClick",
     "handleScreenshareClick",
     "leaveCall",
     "disableScreenShare",
   ],
-  data() {
+  data(): VideoTileData {
     return {
       videoSource: null,
       audioSource: null,
@@ -52,42 +66,33 @@ export default {
     };
   },
   mounted() {
-    this.username = this.participant?.user_name;
-    this.handleVideo(this.participant);
-    this.handleAudio(this.participant);
-  },
-  updated() {
-    this.username = this.participant?.user_name;
-    // For later optimization, this can be done more selectively
-    // using "track-started" and "track-stopped" events.
-    this.handleVideo(this.participant);
-    this.handleAudio(this.participant);
+    console.log("mounmted participant", );
+    this.handleVideo(this.videoTrack);
+    this.handleAudio(this.audioTrack, this.local);
   },
   methods: {
     // Add srcObject to video element
-    handleVideo() {
-      const p = this.participant;
+    handleVideo(videoTrack) {
 
       // If the participant has their video off,
       // early out.
-      if (!p?.video) return;
+      if (!videoTrack) return;
 
-      const track = p.tracks.video.persistentTrack;
-      const newStream = this.updateSource(this.videoSource, track);
+      const newStream = this.updateSource(this.videoSource, videoTrack);
       if (newStream) {
         this.videoSource = newStream;
       }
     },
 
     // Add srcObject to audio element
-    handleAudio() {
-      const p = this.participant;
+    handleAudio(audioTrack, local) {
+      console.log("handleAudio", audioTrack, local);
+
       // If the participant is local or has their audio off,
       // early out.
-      if (!p || p.local || !p.audio) return;
+      if (local || !audioTrack) return;
 
-      const track = p.tracks.audio.persistentTrack;
-      const newStream = this.updateSource(this.audioSource, track);
+      const newStream = this.updateSource(this.audioSource, audioTrack);
       if (newStream) {
         this.audioSource = newStream;
       }
@@ -118,7 +123,7 @@ export default {
       return null;
     },
   },
-};
+});
 </script>
 
 <style scoped>
