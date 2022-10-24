@@ -26,7 +26,7 @@
             </template>
 
             <div v-if="participants" class="participants-container">
-              <div id="video-call"></div>
+              <div id="video-call" ref="videoCall"></div>
 
               <template v-if="count === 1">
                 <waiting-card :url="roomUrl" />
@@ -196,9 +196,8 @@ export default defineComponent({
         participantID
       ) as HTMLVideoElement | null;
       if (!videoTile) {
-        const videoCall = document.getElementById(
-          "video-call"
-        ) as HTMLDivElement;
+        const videoCall = this.$refs.videoCall as HTMLVideoElement;
+        
         const newVideoTile = document.createElement("video");
         newVideoTile.id = participantID;
         videoCall.appendChild(newVideoTile);
