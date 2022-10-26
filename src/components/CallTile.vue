@@ -41,15 +41,10 @@
   </main>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 
-import daily, {
-  type DailyCall,
-  type DailyEventObjectAppMessage,
-  type DailyEventObjectFatalError,
-  type DailyParticipant,
-} from "@daily-co/daily-js";
+import daily from "@daily-co/daily-js";
 
 import WaitingCard from "./WaitingCard.vue";
 import ChatTile from "./ChatTile.vue";
@@ -57,36 +52,7 @@ import ScreenshareTile from "./ScreenshareTile.vue";
 import LoadingTile from "./LoadingTile.vue";
 import PermissionsErrorMsg from "./PermissionsErrorMsg.vue";
 
-interface Participant {
-  session_id: string;
-  user_id: string;
-  user_name: string;
-  local: boolean;
-  video: boolean;
-  audio: boolean;
-  screen: boolean;
-}
 
-interface Message {
-  name: string;
-  message: string;
-}
-
-interface CallTileData {
-  callObject: null | DailyCall;
-  loading: boolean;
-  error: string;
-  showPermissionsError: boolean;
-  participants: Participant[];
-  screen: unknown; // video track
-  messages: Message[];
-  count: number;
-}
-
-type Tracks = {
-  videoTrack: MediaStreamTrack | null;
-  audioTrack: MediaStreamTrack | null;
-};
 
 export default defineComponent({
   name: "CallTile",
@@ -111,7 +77,7 @@ export default defineComponent({
       required: true,
     },
   },
-  data(): CallTileData {
+  data() {
     return {
       callObject: null,
       participants: [],
@@ -190,13 +156,13 @@ export default defineComponent({
       });
   },
   methods: {
-    updateMedia(participantID: string, newTracks: Tracks) {
+    updateMedia(participantID, newTracks) {
       // Get the video tag.
       let videoTile = document.getElementById(
         participantID
-      ) as HTMLVideoElement | null;
+      );
       if (!videoTile) {
-        const videoCall = this.$refs.videoCall as HTMLVideoElement;
+        const videoCall = this.$refs.videoCall;
         
         const newVideoTile = document.createElement("video");
         newVideoTile.id = participantID;
@@ -207,7 +173,7 @@ export default defineComponent({
       const video = videoTile;
 
       // Get existing MediaStream from the video tag source object.
-      const existingStream = video.srcObject as MediaStream;
+      const existingStream = video.srcObject;
 
       const newVideo = newTracks.videoTrack;
       const newAudio = newTracks.audioTrack;
@@ -217,7 +183,7 @@ export default defineComponent({
       // This will happen if this is the first time we're
       // setting the tracks.
       if (!existingStream || existingStream.getTracks().length === 0) {
-        const tracks: MediaStreamTrack[] = [];
+        const tracks = [];
         if (newVideo) tracks.push(newVideo);
         if (newAudio) tracks.push(newAudio);
         const newStream = new MediaStream(tracks);
@@ -252,9 +218,9 @@ export default defineComponent({
       }
     },
     refreshAudioTrack(
-      existingStream: MediaStream,
-      newAudioTrack: MediaStreamTrack | null
-    ): boolean {
+      existingStream,
+      newAudioTrack
+    ) {
       // If there is no new track, just early out
       // and keep the old track on the stream as-is.
       if (!newAudioTrack) return false;
@@ -262,9 +228,9 @@ export default defineComponent({
       return this.refreshTrack(existingStream, existingTracks, newAudioTrack);
     },
     refreshVideoTrack(
-      existingStream: MediaStream,
-      newVideoTrack: MediaStreamTrack | null
-    ): boolean {
+      existingStream,
+      newVideoTrack
+    ) {
       // If there is no new track, just early out
       // and keep the old track on the stream as-is.
       if (!newVideoTrack) return false;
@@ -272,10 +238,10 @@ export default defineComponent({
       return this.refreshTrack(existingStream, existingTracks, newVideoTrack);
     },
     refreshTrack(
-      existingStream: MediaStream,
-      oldTracks: MediaStreamTrack[],
-      newTrack: MediaStreamTrack
-    ): boolean {
+      existingStream,
+      oldTracks,
+      newTrack
+    ) {
       const trackCount = oldTracks.length;
       // If there is no matching old track,
       // just add the new track.
@@ -298,7 +264,7 @@ export default defineComponent({
       }
       return false;
     },
-    playMedia(video: HTMLVideoElement) {
+    playMedia(video) {
       const isPlaying =
         !video.paused &&
         !video.ended &&
@@ -315,8 +281,8 @@ export default defineComponent({
         console.warn("Failed to play media.", e);
       });
     },
-    getParticipantTracks(p: DailyParticipant) {
-      const mediaTracks: Tracks = {
+    getParticipantTracks(p) {
+      const mediaTracks = {
         videoTrack: null,
         audioTrack: null,
       };
@@ -340,37 +306,14 @@ export default defineComponent({
       }
       return mediaTracks;
     },
-    /**
-     * This is called any time a participant update registers.
-     * In large calls, this should be optimized to avoid re-renders.
-     * For example, track-started and track-stopped can be used
-     * to register only video/audio/screen track changes.
-     */
-    updateParticpants(e) {
-      console.log("[EVENT] ", e);
-      if (!this.callObject) return;
-
-      const p = this.callObject.participants();
-      this.count = Object.values(p).length;
-      this.participants = Object.values(p);
-
-      const screen = this.participants.filter((pa) => pa.screenVideoTrack);
-      if (screen?.length && !this.screen) {
-        console.log("[SCREEN]", screen);
-        this.screen = screen[0];
-      } else if (!screen?.length && this.screen) {
-        this.screen = null;
-      }
-      this.loading = false;
-    },
     // Add chat message to local message array
-    updateMessages(e: DailyEventObjectAppMessage<any> | undefined) {
+    updateMessages(e) {
       if (!e) return;
       console.log("[MESSAGE] ", e.data);
       this.messages.push(e?.data);
     },
     // Show local error in UI when daily-js reports an error
-    handleError(e: DailyEventObjectFatalError | undefined) {
+    handleError(e) {
       if (!e) return;
       console.log("[ERROR] ", e);
       this.error = e.errorMsg;
@@ -409,7 +352,7 @@ export default defineComponent({
      * because they do no receive an app-message Daily event for their
      * own messages.
      */
-    sendMessage(text: string) {
+    sendMessage(text) {
       if (!this.callObject) return;
       // Attach the local participant's username to the message to be displayed in ChatTile.vue
       const local = this.callObject.participants().local;
