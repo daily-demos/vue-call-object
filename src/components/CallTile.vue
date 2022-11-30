@@ -287,18 +287,18 @@ export default defineComponent({
       const tracks = p?.tracks;
       if (!tracks) return mediaTracks;
 
-      const vt = tracks.video;
-      const vs = vt?.state;
-      if (vt.persistentTrack && !(vs === "off" || vs === "blocked")) {
-        mediaTracks.videoTrack = vt.persistentTrack;
+      const videoTrack = tracks.video;
+      const videoState = videoTrack?.state;
+      if (videoTrack.persistentTrack && !(videoState === "off" || videoState === "blocked")) {
+        mediaTracks.videoTrack = videoTrack.persistentTrack;
       }
 
       // Only get audio track if this is a remote participant
       if (!p.local) {
-        const at = tracks.audio;
-        const as = at?.state;
-        if (at.persistentTrack && !(as === "off" || as === "blocked")) {
-          mediaTracks.audioTrack = at.persistentTrack;
+        const audioTrack = tracks.audio;
+        const audioState = audioTrack?.state;
+        if (audioTrack.persistentTrack && !(audioState === "off" || audioState === "blocked")) {
+          mediaTracks.audioTrack = audioTrack.persistentTrack;
         }
       }
       return mediaTracks;
