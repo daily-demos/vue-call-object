@@ -308,7 +308,7 @@ export default defineComponent({
     updateMessages(e) {
       if (!e) return;
       console.log("[MESSAGE] ", e.data);
-      this.messages.push(e?.data);
+      this.messages.push(e.data);
     },
     // Show local error in UI when daily-js reports an error
     handleError(e) {
