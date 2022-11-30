@@ -195,8 +195,7 @@ export default defineComponent({
 
       // This boolean will define whether we play the video element again
       // This should be `true` if any of the tracks have changed.
-      let needsPlay = false;
-      needsPlay = this.refreshAudioTrack(existingStream, newAudio);
+      let needsPlay = this.refreshAudioTrack(existingStream, newAudio);
 
       // We have an extra if check here compared to the audio track
       // handling above, because the video track also dictates
