@@ -1,7 +1,7 @@
 <template>
   <div class="controls">
     <div class="devices">
-      <button @click="handleAudioClick">
+      <button title="ctrl+m / cmd+m" @click="handleAudioClick">
         <template v-if="participant.audio">
           <img class="icon" :src="micOn" alt="" />
         </template>
@@ -10,7 +10,7 @@
         </template>
       </button>
 
-      <button @click="handleVideoClick">
+      <button title="ctrl+alt+v / cmd+option+v" @click="handleVideoClick">
         <template v-if="participant.video">
           <img class="icon" :src="videoOn" alt="" />
         </template>
@@ -20,7 +20,7 @@
       </button>
 
       <template v-if="supportsScreenshare">
-        <button :disabled="disableScreenShare" @click="handleScreenshareClick">
+        <button title="ctrl+alt+s / cmd+option+s" :disabled="disableScreenShare" @click="handleScreenshareClick">
           <img class="icon" :src="screenShare" alt="" />
         </button>
       </template>
