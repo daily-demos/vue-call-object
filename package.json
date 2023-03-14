@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.31.0",
+    "@vueuse/core": "^9.13.0",
     "vue": "^3.2.40"
   },
   "devDependencies": {
