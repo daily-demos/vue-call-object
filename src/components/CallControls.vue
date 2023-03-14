@@ -34,6 +34,7 @@
 
 <script>
 import daily from "@daily-co/daily-js";
+import { ref } from "vue";
 
 import leave from "../assets/leave_call.svg";
 import micOff from "../assets/mic_off.svg";
@@ -52,6 +53,13 @@ export default {
     "leaveCall",
     "disableScreenShare",
   ],
+  setup() {
+    const supportsScreenshare = ref(false)
+
+    return {
+      supportsScreenshare
+    }
+  },
   data() {
     return {
       leave,
@@ -60,7 +68,6 @@ export default {
       screenShare,
       videoOn,
       videoOff,
-      supportsScreenshare: false,
     };
   },
   mounted() {
