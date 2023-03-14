@@ -34,7 +34,7 @@
 
 <script>
 import daily from "@daily-co/daily-js";
-import { ref, watchEffect } from "vue";
+import { computed, ref, watch } from "vue";
 import { useMagicKeys } from '@vueuse/core';
 
 import leave from "../assets/leave_call.svg";
@@ -59,8 +59,9 @@ export default {
 
     const { ctrl, m } = useMagicKeys()
 
-    watchEffect(() => {
-      if(ctrl.value && m.value) {
+    const ctrlM = computed(() => ctrl.value && m.value)
+    watch(ctrlM, (value) => {
+      if (value) {
         props.handleAudioClick()
       }
     })
