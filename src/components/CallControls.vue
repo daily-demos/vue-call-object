@@ -34,8 +34,8 @@
 
 <script>
 import daily from "@daily-co/daily-js";
-import { computed, ref, watch } from "vue";
-import { useMagicKeys } from '@vueuse/core';
+import { ref } from "vue";
+import { useMagicKeys, whenever } from '@vueuse/core';
 
 import leave from "../assets/leave_call.svg";
 import micOff from "../assets/mic_off.svg";
@@ -57,14 +57,11 @@ export default {
   setup(props) {
     const supportsScreenshare = ref(false)
 
-    const { ctrl, m } = useMagicKeys()
+    const {
+      ctrl_m
+    } = useMagicKeys()
 
-    const ctrlM = computed(() => ctrl.value && m.value)
-    watch(ctrlM, (value) => {
-      if (value) {
-        props.handleAudioClick()
-      }
-    })
+    whenever(ctrl_m, () => props.handleAudioClick())
 
     return {
       supportsScreenshare
