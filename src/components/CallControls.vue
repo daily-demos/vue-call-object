@@ -58,10 +58,21 @@ export default {
     const supportsScreenshare = ref(false)
 
     const {
-      ctrl_m
+      cmd_m: audioToggleMAC,
+      ctrl_m: audioToggleWindows,
+      cmd_option_s: screenShareToggleMAC,
+      ctrl_alt_s: screenShareToggleWindows,
+      cmd_option_v: videoToggleMAC,
+      ctrl_alt_v: videoToggleWindows
     } = useMagicKeys()
 
-    whenever(ctrl_m, () => props.handleAudioClick())
+
+    whenever(audioToggleMAC, () => props.handleAudioClick())
+    whenever(audioToggleWindows, () => props.handleAudioClick())
+    whenever(screenShareToggleMAC, () => props.handleScreenshareClick())
+    whenever(screenShareToggleWindows, () => props.handleScreenshareClick())
+    whenever(videoToggleMAC, () => props.handleVideoClick())
+    whenever(videoToggleWindows, () => props.handleVideoClick())
 
     return {
       supportsScreenshare
