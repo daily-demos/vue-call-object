@@ -22,6 +22,10 @@
         </p>
       </div>
 
+      <p v-if="displayWarning" class="warning-message">
+        The message you're trying to send was flagged as offensive. Please consider minding the language you use in this meeting.
+      </p>
+
       <form @submit="submitForm">
         <div class="input">
           <label for="message">Type a message...</label>
@@ -59,7 +63,8 @@ export default {
       chat,
       send,
       text: "",
-      model: null
+      model: null,
+      displayWarning: false,
     };
   },
   beforeCreate() {
@@ -76,9 +81,10 @@ export default {
     // Send chat message using prop method from CallTile.vue
     async submitForm(e) {
       e.preventDefault();
+      this.displayWarning = false;
 
       const hasToxicContent = await this.analyzeInputText(this.text);
-      // this.sendMessage(this.text);
+      hasToxicContent ? this.displayWarning = true : this.sendMessage(this.text);
       this.text = "";
     },
     async analyzeInputText(text) {
@@ -167,6 +173,10 @@ form {
 }
 .chat-message .chat-name {
   color: #6b7785;
+}
+
+.warning-message {
+  color: red;
 }
 
 @media screen and (max-width: 700px) {
