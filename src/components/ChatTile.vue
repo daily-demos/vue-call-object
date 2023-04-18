@@ -74,11 +74,17 @@ export default {
       this.chatIsOpen = !this.chatIsOpen;
     },
     // Send chat message using prop method from CallTile.vue
-    submitForm(e) {
+    async submitForm(e) {
       e.preventDefault();
 
-      this.sendMessage(this.text);
+      const hasToxicContent = await this.analyzeInputText(this.text);
+      // this.sendMessage(this.text);
       this.text = "";
+    },
+    async analyzeInputText(text) {
+      const predictions = await this.model.classify(text);
+      const containsToxicContent = predictions.some(prediction => prediction.results[0].match);
+      return containsToxicContent;
     },
   },
 };
