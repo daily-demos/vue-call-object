@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { load } from '@tensorflow-models/toxicity';
+
 import close from "../assets/x.svg";
 import chat from "../assets/chat.svg";
 import send from "../assets/send.svg";
@@ -57,7 +59,14 @@ export default {
       chat,
       send,
       text: "",
+      model: null
     };
+  },
+  beforeCreate() {
+    const threshold = 0.9;
+    load(threshold).then(model => {
+      this.model = Object.freeze(model);
+    });
   },
   methods: {
     // Toggle chat's view (open/closed)
