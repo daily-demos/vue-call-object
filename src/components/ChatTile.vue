@@ -23,7 +23,7 @@
       </div>
 
       <p v-if="displayWarning" class="warning-message">
-        The message you're trying to send was flagged as offensive. Please consider minding the language you use in this meeting.
+        Oops! The message you're trying to send was flagged as potentially offensive. If you think this was flagged in error, please contact us!
       </p>
 
       <form @submit="submitForm">
