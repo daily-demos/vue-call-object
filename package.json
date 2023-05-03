@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.31.0",
+    "@tensorflow-models/toxicity": "^1.2.2",
+    "@tensorflow/tfjs": "^4.4.0",
     "vue": "^3.2.40"
   },
   "devDependencies": {

@@ -1,8 +1,11 @@
 <template>
   <div :class="chatIsOpen ? 'chat-wrapper open' : 'chat-wrapper'">
     <div>
-      <button class="chat" @click="handleChatClick">
-        <template v-if="chatIsOpen">
+      <button class="chat" @click="handleChatClick" :disabled="!model">
+        <template v-if="!model">
+          <img class="icon" :src="close" alt="" />
+        </template>
+        <template v-else-if="chatIsOpen">
           <img class="icon" :src="close" alt="" />
         </template>
         <template v-else>
@@ -21,6 +24,11 @@
           <span class="chat-name">{{ name }}: </span>{{ message }}
         </p>
       </div>
+
+      <p v-if="displayWarning" class="warning-message">
+        Oops! The message you're trying to send was flagged as potentially
+        offensive. If you think this was flagged in error, please contact us!
+      </p>
 
       <form @submit="submitForm">
         <div class="input">
@@ -43,6 +51,8 @@
 </template>
 
 <script>
+import { load } from "@tensorflow-models/toxicity";
+
 import close from "../assets/x.svg";
 import chat from "../assets/chat.svg";
 import send from "../assets/send.svg";
@@ -57,7 +67,19 @@ export default {
       chat,
       send,
       text: "",
+      model: null,
+      displayWarning: false,
     };
+  },
+  beforeCreate() {
+    const threshold = 0.9;
+    load(threshold)
+      .then((model) => {
+        this.model = Object.freeze(model);
+      })
+      .catch((e) => {
+        console.error("failed to load toxicity model", e);
+      });
   },
   methods: {
     // Toggle chat's view (open/closed)
@@ -65,11 +87,22 @@ export default {
       this.chatIsOpen = !this.chatIsOpen;
     },
     // Send chat message using prop method from CallTile.vue
-    submitForm(e) {
+    async submitForm(e) {
       e.preventDefault();
+      this.displayWarning = false;
 
-      this.sendMessage(this.text);
+      const hasToxicContent = await this.analyzeInputText(this.text);
+      hasToxicContent
+        ? (this.displayWarning = true)
+        : this.sendMessage(this.text);
       this.text = "";
+    },
+    async analyzeInputText(text) {
+      const predictions = await this.model.classify(text);
+      const containsToxicContent = predictions.some(
+        (prediction) => prediction.results[0].match
+      );
+      return containsToxicContent;
     },
   },
 };
@@ -152,6 +185,10 @@ form {
 }
 .chat-message .chat-name {
   color: #6b7785;
+}
+
+.warning-message {
+  color: red;
 }
 
 @media screen and (max-width: 700px) {
