@@ -1,8 +1,11 @@
 <template>
   <div :class="chatIsOpen ? 'chat-wrapper open' : 'chat-wrapper'">
     <div>
-      <button class="chat" @click="handleChatClick">
-        <template v-if="chatIsOpen">
+      <button class="chat" @click="handleChatClick" :disabled="!model">
+        <template v-if="!model">
+          <img class="icon" :src="close" alt="" />
+        </template>
+        <template v-else-if="chatIsOpen">
           <img class="icon" :src="close" alt="" />
         </template>
         <template v-else>
@@ -23,7 +26,8 @@
       </div>
 
       <p v-if="displayWarning" class="warning-message">
-        Oops! The message you're trying to send was flagged as potentially offensive. If you think this was flagged in error, please contact us!
+        Oops! The message you're trying to send was flagged as potentially
+        offensive. If you think this was flagged in error, please contact us!
       </p>
 
       <form @submit="submitForm">
@@ -47,7 +51,7 @@
 </template>
 
 <script>
-import { load } from '@tensorflow-models/toxicity';
+import { load } from "@tensorflow-models/toxicity";
 
 import close from "../assets/x.svg";
 import chat from "../assets/chat.svg";
@@ -69,9 +73,13 @@ export default {
   },
   beforeCreate() {
     const threshold = 0.9;
-    load(threshold).then(model => {
-      this.model = Object.freeze(model);
-    });
+    load(threshold)
+      .then((model) => {
+        this.model = Object.freeze(model);
+      })
+      .catch((e) => {
+        console.error("failed to load toxicity model", e);
+      });
   },
   methods: {
     // Toggle chat's view (open/closed)
@@ -84,12 +92,16 @@ export default {
       this.displayWarning = false;
 
       const hasToxicContent = await this.analyzeInputText(this.text);
-      hasToxicContent ? this.displayWarning = true : this.sendMessage(this.text);
+      hasToxicContent
+        ? (this.displayWarning = true)
+        : this.sendMessage(this.text);
       this.text = "";
     },
     async analyzeInputText(text) {
       const predictions = await this.model.classify(text);
-      const containsToxicContent = predictions.some(prediction => prediction.results[0].match);
+      const containsToxicContent = predictions.some(
+        (prediction) => prediction.results[0].match
+      );
       return containsToxicContent;
     },
   },
